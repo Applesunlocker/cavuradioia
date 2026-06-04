@@ -9,8 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TeamRouteImport } from './routes/team'
+import { Route as StudioRouteImport } from './routes/studio'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as LibraryRouteImport } from './routes/library'
+import { Route as DestinationsRouteImport } from './routes/destinations'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BroadcastsRouteImport } from './routes/broadcasts'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AiToolsRouteImport } from './routes/ai-tools'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestinationsRoute = DestinationsRouteImport.update({
+  id: '/destinations',
+  path: '/destinations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BroadcastsRoute = BroadcastsRouteImport.update({
+  id: '/broadcasts',
+  path: '/broadcasts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiToolsRoute = AiToolsRouteImport.update({
+  id: '/ai-tools',
+  path: '/ai-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +73,158 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-tools': typeof AiToolsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/broadcasts': typeof BroadcastsRoute
+  '/dashboard': typeof DashboardRoute
+  '/destinations': typeof DestinationsRoute
+  '/library': typeof LibraryRoute
+  '/settings': typeof SettingsRoute
+  '/studio': typeof StudioRoute
+  '/team': typeof TeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-tools': typeof AiToolsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/broadcasts': typeof BroadcastsRoute
+  '/dashboard': typeof DashboardRoute
+  '/destinations': typeof DestinationsRoute
+  '/library': typeof LibraryRoute
+  '/settings': typeof SettingsRoute
+  '/studio': typeof StudioRoute
+  '/team': typeof TeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-tools': typeof AiToolsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/broadcasts': typeof BroadcastsRoute
+  '/dashboard': typeof DashboardRoute
+  '/destinations': typeof DestinationsRoute
+  '/library': typeof LibraryRoute
+  '/settings': typeof SettingsRoute
+  '/studio': typeof StudioRoute
+  '/team': typeof TeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ai-tools'
+    | '/analytics'
+    | '/broadcasts'
+    | '/dashboard'
+    | '/destinations'
+    | '/library'
+    | '/settings'
+    | '/studio'
+    | '/team'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ai-tools'
+    | '/analytics'
+    | '/broadcasts'
+    | '/dashboard'
+    | '/destinations'
+    | '/library'
+    | '/settings'
+    | '/studio'
+    | '/team'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-tools'
+    | '/analytics'
+    | '/broadcasts'
+    | '/dashboard'
+    | '/destinations'
+    | '/library'
+    | '/settings'
+    | '/studio'
+    | '/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiToolsRoute: typeof AiToolsRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  BroadcastsRoute: typeof BroadcastsRoute
+  DashboardRoute: typeof DashboardRoute
+  DestinationsRoute: typeof DestinationsRoute
+  LibraryRoute: typeof LibraryRoute
+  SettingsRoute: typeof SettingsRoute
+  StudioRoute: typeof StudioRoute
+  TeamRoute: typeof TeamRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destinations': {
+      id: '/destinations'
+      path: '/destinations'
+      fullPath: '/destinations'
+      preLoaderRoute: typeof DestinationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/broadcasts': {
+      id: '/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/broadcasts'
+      preLoaderRoute: typeof BroadcastsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-tools': {
+      id: '/ai-tools'
+      path: '/ai-tools'
+      fullPath: '/ai-tools'
+      preLoaderRoute: typeof AiToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,7 +237,26 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiToolsRoute: AiToolsRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  BroadcastsRoute: BroadcastsRoute,
+  DashboardRoute: DashboardRoute,
+  DestinationsRoute: DestinationsRoute,
+  LibraryRoute: LibraryRoute,
+  SettingsRoute: SettingsRoute,
+  StudioRoute: StudioRoute,
+  TeamRoute: TeamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
