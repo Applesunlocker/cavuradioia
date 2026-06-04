@@ -177,6 +177,10 @@
   background: var(--gradient-neon);
 }
 
+@utility gradient-vibrant-bg {
+  background: var(--gradient-vibrant);
+}
+
 @utility glow {
   box-shadow: var(--shadow-glow);
 }
