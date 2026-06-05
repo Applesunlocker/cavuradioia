@@ -59,6 +59,12 @@ export function StatusPill({ status }: { status: string }) {
     completed: "bg-neon/15 text-neon border-neon/30",
     draft: "bg-muted text-muted-foreground border-border",
   };
+  const labels: Record<string, string> = {
+    live: "En vivo",
+    scheduled: "Programada",
+    completed: "Finalizada",
+    draft: "Borrador",
+  };
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
@@ -66,7 +72,7 @@ export function StatusPill({ status }: { status: string }) {
       }`}
     >
       {status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-destructive live-dot" />}
-      {status}
+      {labels[status] ?? status}
     </span>
   );
 }
