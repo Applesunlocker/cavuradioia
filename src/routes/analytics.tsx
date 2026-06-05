@@ -5,7 +5,7 @@ import { metrics } from "@/lib/mock-data";
 import { Sparkles, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/analytics")({
-  head: () => ({ meta: [{ title: "Analytics — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Analítica — NovaStream AI" }] }),
   component: Analytics,
 });
 
@@ -13,8 +13,8 @@ function Analytics() {
   return (
     <AppShell>
       <PageHeader
-        title="Analytics"
-        description="Real-time and historical performance across every platform you broadcast to."
+        title="Analítica"
+        description="Rendimiento en tiempo real e histórico en todas las plataformas donde emites."
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -23,7 +23,7 @@ function Analytics() {
 
       <div className="glass rounded-2xl p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">Viewers over time</h2>
+          <h2 className="text-lg font-semibold">Espectadores en el tiempo</h2>
           <div className="flex gap-2 text-xs">
             {["7d", "30d", "90d"].map((p, i) => (
               <button key={p} className={`rounded-md px-3 py-1.5 font-semibold ${i === 1 ? "gradient-primary-bg text-primary-foreground" : "bg-secondary/60"}`}>{p}</button>
@@ -35,7 +35,7 @@ function Analytics() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="glass rounded-2xl p-6">
-          <h3 className="font-semibold mb-4">Top platforms</h3>
+          <h3 className="font-semibold mb-4">Plataformas principales</h3>
           {[
             { name: "YouTube", value: 62, color: "oklch(0.65 0.24 25)" },
             { name: "LinkedIn", value: 24, color: "oklch(0.55 0.18 245)" },
@@ -59,13 +59,13 @@ function Analytics() {
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="h-4 w-4 text-neon" />
-              <span className="text-xs font-bold tracking-widest uppercase text-neon">Predictive Insights</span>
+              <span className="text-xs font-bold tracking-widest uppercase text-neon">Insights predictivos</span>
             </div>
-            <h3 className="text-lg font-semibold">AI recommendations</h3>
+            <h3 className="text-lg font-semibold">Recomendaciones de IA</h3>
             <ul className="mt-4 space-y-3 text-sm">
-              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />Streaming Thursdays at <strong>6 PM</strong> would grow your audience by an estimated <strong>+24%</strong>.</li>
-              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />Title pattern "How I…" outperforms others by <strong>3.1×</strong>. Consider for next stream.</li>
-              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />Your audience is most engaged at minutes <strong>14-22</strong>. Front-load key content.</li>
+              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />Emitir los jueves a las <strong>18:00</strong> haría crecer tu audiencia un estimado <strong>+24%</strong>.</li>
+              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />El patrón de título "Cómo yo…" rinde <strong>3,1×</strong> mejor. Considéralo para tu próximo stream.</li>
+              <li className="flex gap-3"><TrendingUp className="h-4 w-4 text-neon mt-0.5 shrink-0" />Tu audiencia está más enganchada en los minutos <strong>14-22</strong>. Pon el contenido clave al inicio.</li>
             </ul>
           </div>
         </div>

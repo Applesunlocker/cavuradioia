@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, Button } from "@/components/ui-bits";
 import { broadcasts } from "@/lib/mock-data";
-import { Search, Sparkles, Play, Download, Scissors } from "lucide-react";
+import { Sparkles, Play, Download, Scissors } from "lucide-react";
 
 export const Route = createFileRoute("/library")({
-  head: () => ({ meta: [{ title: "Library — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Librería — NovaStream AI" }] }),
   component: LibraryPage,
 });
 
@@ -14,18 +14,18 @@ function LibraryPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Library"
-        description="Every broadcast, clip, and AI-generated asset — searchable with natural language."
+        title="Librería"
+        description="Todas tus transmisiones, clips y recursos generados por IA — buscables en lenguaje natural."
       />
 
       <div className="glass-strong rounded-2xl p-4 mb-8 border border-neon/30">
         <div className="flex items-center gap-3">
           <Sparkles className="h-5 w-5 text-neon shrink-0" />
           <input
-            placeholder='Try: "show me clips where I talk about marketing strategy"'
+            placeholder='Prueba: "muéstrame clips donde hablo sobre estrategia de marketing"'
             className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground"
           />
-          <Button variant="neon" className="!py-2 !text-xs">AI Search</Button>
+          <Button variant="neon" className="!py-2 !text-xs">Buscar con IA</Button>
         </div>
       </div>
 
@@ -42,13 +42,13 @@ function LibraryPage() {
             </div>
             <div className="p-4">
               <h3 className="font-semibold line-clamp-1">{v.title}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{v.date} · {v.peakViewers.toLocaleString()} views</p>
+              <p className="text-xs text-muted-foreground mt-1">{v.date} · {v.peakViewers.toLocaleString("es")} visualizaciones</p>
               <div className="mt-3 flex gap-2">
                 <button className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent">
-                  <Scissors className="h-3 w-3" /> AI Clips
+                  <Scissors className="h-3 w-3" /> Clips IA
                 </button>
                 <button className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent">
-                  <Download className="h-3 w-3" /> Download
+                  <Download className="h-3 w-3" /> Descargar
                 </button>
               </div>
             </div>

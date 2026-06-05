@@ -5,7 +5,7 @@ import { platforms } from "@/lib/mock-data";
 import { Plus, Check, Link as LinkIcon } from "lucide-react";
 
 export const Route = createFileRoute("/destinations")({
-  head: () => ({ meta: [{ title: "Destinations — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Destinos — NovaStream AI" }] }),
   component: Destinations,
 });
 
@@ -13,9 +13,9 @@ function Destinations() {
   return (
     <AppShell>
       <PageHeader
-        title="Destinations"
-        description="Connect every platform once. Multistream simultaneously in landscape and portrait."
-        action={<Button><Plus className="h-4 w-4" /> Add Custom RTMP</Button>}
+        title="Destinos"
+        description="Conecta cada plataforma una vez. Multi-streaming simultáneo en horizontal y vertical."
+        action={<Button><Plus className="h-4 w-4" /> Añadir RTMP personalizado</Button>}
       />
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -30,7 +30,7 @@ function Destinations() {
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold">{p.name}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {p.connected ? "Connected · streaming enabled" : "Not connected"}
+                {p.connected ? "Conectado · streaming activo" : "No conectado"}
               </p>
             </div>
             {p.connected ? (
@@ -39,7 +39,7 @@ function Destinations() {
               </span>
             ) : (
               <button className="rounded-lg bg-secondary/60 hover:bg-accent px-3 py-1.5 text-xs font-semibold flex items-center gap-1">
-                <LinkIcon className="h-3 w-3" /> Connect
+                <LinkIcon className="h-3 w-3" /> Conectar
               </button>
             )}
           </div>
@@ -47,13 +47,13 @@ function Destinations() {
       </div>
 
       <div className="mt-10 glass-strong rounded-2xl p-6">
-        <h2 className="text-xl font-semibold">Stream profiles</h2>
-        <p className="text-sm text-muted-foreground mt-1">Pre-configured multi-platform presets for one-click broadcasting.</p>
+        <h2 className="text-xl font-semibold">Perfiles de emisión</h2>
+        <p className="text-sm text-muted-foreground mt-1">Presets multi-plataforma preconfigurados para emitir con un clic.</p>
         <div className="mt-5 grid md:grid-cols-3 gap-3">
           {[
-            { name: "Full Reach", platforms: "YouTube + LinkedIn + X", ratio: "16:9 + 9:16" },
-            { name: "Podcast Stack", platforms: "YouTube + Twitch", ratio: "16:9" },
-            { name: "Short-form", platforms: "TikTok + Instagram", ratio: "9:16" },
+            { name: "Alcance total", platforms: "YouTube + LinkedIn + X", ratio: "16:9 + 9:16" },
+            { name: "Stack de Podcast", platforms: "YouTube + Twitch", ratio: "16:9" },
+            { name: "Formato corto", platforms: "TikTok + Instagram", ratio: "9:16" },
           ].map((p) => (
             <div key={p.name} className="rounded-xl bg-secondary/40 p-4 border border-border">
               <p className="font-semibold">{p.name}</p>

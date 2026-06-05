@@ -5,7 +5,7 @@ import { broadcasts, metrics } from "@/lib/mock-data";
 import { Plus, Play, Calendar, Sparkles, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Panel — NovaStream AI" }] }),
   component: Dashboard,
 });
 
@@ -17,11 +17,11 @@ function Dashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Welcome back, Alex 👋"
-        description="Your studio is ready. Here's what's happening across your channels."
+        title="Bienvenido, Alex 👋"
+        description="Tu studio está listo. Esto es lo que está pasando en tus canales."
         action={
           <Link to="/studio">
-            <Button><Plus className="h-4 w-4" /> New Broadcast</Button>
+            <Button><Plus className="h-4 w-4" /> Nueva transmisión</Button>
           </Link>
         }
       />
@@ -38,11 +38,11 @@ function Dashboard() {
               <StatusPill status="live" />
               <h3 className="mt-2 text-xl font-semibold">{live.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {live.peakViewers.toLocaleString()} viewers · {live.duration} · {live.platforms.join(" · ")}
+                {live.peakViewers.toLocaleString("es")} espectadores · {live.duration} · {live.platforms.join(" · ")}
               </p>
             </div>
             <Link to="/studio">
-              <Button variant="neon"><Play className="h-4 w-4" /> Join Live</Button>
+              <Button variant="neon"><Play className="h-4 w-4" /> Unirse al directo</Button>
             </Link>
           </div>
         </div>
@@ -59,22 +59,22 @@ function Dashboard() {
           <div className="h-12 w-12 rounded-xl gradient-primary-bg flex items-center justify-center glow">
             <Play className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">Go Live Now</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Open the Studio and start broadcasting in seconds.</p>
+          <h3 className="mt-4 text-lg font-semibold">Emitir ahora</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Abre el Studio y empieza a transmitir en segundos.</p>
         </Link>
         <Link to="/ai-tools" className="glass rounded-2xl p-6 hover:border-neon/50 transition-colors group">
           <div className="h-12 w-12 rounded-xl gradient-neon-bg flex items-center justify-center glow-neon">
             <Sparkles className="h-5 w-5 text-neon-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">AI Studio Tools</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Generate scripts, clips, thumbnails and titles with AI.</p>
+          <h3 className="mt-4 text-lg font-semibold">Herramientas IA</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Genera guiones, clips, miniaturas y títulos con IA.</p>
         </Link>
         <Link to="/analytics" className="glass rounded-2xl p-6 hover:border-purple-glow/50 transition-colors group">
           <div className="h-12 w-12 rounded-xl flex items-center justify-center glow" style={{ background: "linear-gradient(135deg, var(--purple-glow), var(--primary))" }}>
             <TrendingUp className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">View Analytics</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Real-time metrics across every platform you stream to.</p>
+          <h3 className="mt-4 text-lg font-semibold">Ver analítica</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Métricas en tiempo real de todas las plataformas donde emites.</p>
         </Link>
       </div>
 
@@ -82,9 +82,9 @@ function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" /> Upcoming
+              <Calendar className="h-5 w-5 text-primary" /> Próximas
             </h2>
-            <Link to="/broadcasts" className="text-sm text-primary hover:underline">See all →</Link>
+            <Link to="/broadcasts" className="text-sm text-primary hover:underline">Ver todas →</Link>
           </div>
           <div className="space-y-3">
             {upcoming.map((b) => (
@@ -102,8 +102,8 @@ function Dashboard() {
 
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Recent Broadcasts</h2>
-            <Link to="/library" className="text-sm text-primary hover:underline">Library →</Link>
+            <h2 className="text-xl font-semibold">Transmisiones recientes</h2>
+            <Link to="/library" className="text-sm text-primary hover:underline">Librería →</Link>
           </div>
           <div className="space-y-3">
             {recent.map((b) => (
@@ -111,7 +111,7 @@ function Dashboard() {
                 <div className="h-14 w-20 rounded-lg shrink-0" style={{ background: b.thumbnail }} />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{b.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{b.peakViewers.toLocaleString()} viewers · {b.duration}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{b.peakViewers.toLocaleString("es")} espectadores · {b.duration}</p>
                 </div>
                 <span className="text-xs font-bold text-neon">{b.engagement}%</span>
               </div>

@@ -19,15 +19,15 @@ import {
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean };
 const nav: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/broadcasts", label: "Broadcasts", icon: Radio },
+  { to: "/dashboard", label: "Panel", icon: LayoutDashboard },
+  { to: "/broadcasts", label: "Transmisiones", icon: Radio },
   { to: "/studio", label: "Studio", icon: Clapperboard, accent: true },
-  { to: "/library", label: "Library", icon: Library },
-  { to: "/destinations", label: "Destinations", icon: Share2 },
-  { to: "/ai-tools", label: "AI Tools", icon: Sparkles },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/team", label: "Team", icon: Users },
-  { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/library", label: "Librería", icon: Library },
+  { to: "/destinations", label: "Destinos", icon: Share2 },
+  { to: "/ai-tools", label: "Herramientas IA", icon: Sparkles },
+  { to: "/analytics", label: "Analítica", icon: BarChart3 },
+  { to: "/team", label: "Equipo", icon: Users },
+  { to: "/settings", label: "Ajustes", icon: Settings },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <button
           onClick={() => setOpen((o) => !o)}
           className="rounded-lg p-2 hover:bg-accent"
-          aria-label="Toggle menu"
+          aria-label="Abrir menú"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="flex items-center justify-center gap-2 w-full rounded-xl gradient-primary-bg px-3 py-2.5 text-sm font-semibold text-primary-foreground glow hover:scale-[1.02] transition-transform"
           >
             <Plus className="h-4 w-4" />
-            New Broadcast
+            Nueva transmisión
           </Link>
         </div>
 
@@ -96,7 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Icon className={`h-4 w-4 ${active ? "text-primary" : ""}`} />
                 <span>{item.label}</span>
                 {item.accent && (
-                  <span className="ml-auto text-[10px] font-bold tracking-wider gradient-text">LIVE</span>
+                  <span className="ml-auto text-[10px] font-bold tracking-wider gradient-text">EN VIVO</span>
                 )}
               </Link>
             );
@@ -106,14 +106,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="m-3 rounded-xl glass p-3.5">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-neon" />
-            <span className="text-xs font-semibold">AI Credits</span>
+            <span className="text-xs font-semibold">Créditos de IA</span>
           </div>
           <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
             <div className="h-full w-3/4 gradient-neon-bg rounded-full" />
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">2,340 / 3,000 used</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">2.340 / 3.000 usados</p>
           <button className="mt-2 w-full text-xs font-medium text-primary hover:underline">
-            Upgrade plan →
+            Mejorar plan →
           </button>
         </div>
       </aside>
@@ -134,7 +134,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Search broadcasts, clips, guests..."
+              placeholder="Buscar transmisiones, clips, invitados..."
               className="w-full rounded-xl bg-secondary/60 border border-border pl-9 pr-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3 pl-3 border-l border-border">
             <div className="text-right leading-tight">
               <p className="text-sm font-semibold">Alex Rivera</p>
-              <p className="text-xs text-muted-foreground">Pro Creator</p>
+              <p className="text-xs text-muted-foreground">Creador Pro</p>
             </div>
             <div className="h-9 w-9 rounded-full gradient-primary-bg flex items-center justify-center text-sm font-bold text-primary-foreground">
               AR
