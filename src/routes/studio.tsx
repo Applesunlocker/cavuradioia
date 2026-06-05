@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui-bits";
 import {
   Mic, MicOff, Video, VideoOff, Monitor, MessageSquare, Settings2, Users,
-  Layout, Sparkles, Bot, ChevronUp, Send, Image as ImageIcon, Type, Square,
+  Layout, Sparkles, Bot, Send, Image as ImageIcon, Type, Square,
 } from "lucide-react";
 
 export const Route = createFileRoute("/studio")({
@@ -23,14 +23,14 @@ function Studio() {
       <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-8rem)] -mt-2">
         {/* Left tools rail */}
         <aside className="lg:w-56 glass rounded-2xl p-3 space-y-1 lg:overflow-y-auto shrink-0">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1.5">Sources</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1.5">Fuentes</p>
           {[
-            { icon: Video, label: "Camera" },
-            { icon: Monitor, label: "Screen share" },
-            { icon: ImageIcon, label: "Media board" },
+            { icon: Video, label: "Cámara" },
+            { icon: Monitor, label: "Compartir pantalla" },
+            { icon: ImageIcon, label: "Tablero de medios" },
             { icon: Type, label: "Lower third" },
             { icon: Square, label: "Overlay" },
-            { icon: Users, label: "Invite guest" },
+            { icon: Users, label: "Invitar invitado" },
           ].map((t) => (
             <button key={t.label} className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm hover:bg-accent">
               <t.icon className="h-4 w-4 text-primary" />
@@ -47,7 +47,7 @@ function Studio() {
                 className={`aspect-video rounded-md border ${
                   layout === l ? "border-primary bg-primary/10 glow" : "border-border bg-secondary/40"
                 }`}
-                title={l}
+                title={l === "grid" ? "Mosaico" : l === "focus" ? "Enfocado" : "PiP"}
               >
                 <Layout className="h-3 w-3 mx-auto text-muted-foreground" />
               </button>
@@ -61,13 +61,13 @@ function Studio() {
             {/* Status bar */}
             <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-destructive px-3 py-1 text-xs font-bold uppercase tracking-wider text-white live-dot">● Live</span>
+                <span className="rounded-full bg-destructive px-3 py-1 text-xs font-bold uppercase tracking-wider text-white live-dot">● En vivo</span>
                 <span className="rounded-full glass px-3 py-1 text-xs font-semibold">01:24:32</span>
-                <span className="rounded-full glass px-3 py-1 text-xs font-semibold">4,827 watching</span>
+                <span className="rounded-full glass px-3 py-1 text-xs font-semibold">4.827 viendo</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="rounded-full glass px-3 py-1 text-xs font-semibold flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-neon" /> 1080p · 60fps
+                  <span className="h-1.5 w-1.5 rounded-full bg-neon" /> 1080p · 60 fps
                 </span>
               </div>
             </div>
@@ -84,7 +84,7 @@ function Studio() {
                   <div key={i} className="relative rounded-xl glass-strong overflow-hidden flex items-center justify-center">
                     <div className="text-6xl opacity-60">{["🎙️", "👤", "💡", "📊"][i - 1] || "🎙️"}</div>
                     <div className="absolute bottom-2 left-2 rounded-md glass px-2 py-0.5 text-xs font-semibold">
-                      {["Alex Rivera", "Maya Chen", "Jordan Park", "Slides"][i - 1] || "Speaker"}
+                      {["Alex Rivera", "Maya Chen", "Jordan Park", "Diapositivas"][i - 1] || "Ponente"}
                     </div>
                   </div>
                 ))}
@@ -97,10 +97,10 @@ function Studio() {
                 <Bot className="h-4 w-4 text-neon-foreground" />
               </div>
               <p className="text-sm flex-1">
-                <span className="font-semibold text-neon">AI Director:</span> Maya is speaking — switch to focus layout?
+                <span className="font-semibold text-neon">Director IA:</span> Maya está hablando — ¿cambiar a layout enfocado?
               </p>
-              <Button variant="neon" className="!py-1.5 !px-3 !text-xs">Apply</Button>
-              <button className="text-xs text-muted-foreground hover:text-foreground px-2">Dismiss</button>
+              <Button variant="neon" className="!py-1.5 !px-3 !text-xs">Aplicar</Button>
+              <button className="text-xs text-muted-foreground hover:text-foreground px-2">Descartar</button>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ function Studio() {
             <div className="flex items-center gap-2">
               <ControlBtn active={mic} onClick={() => setMic(!mic)} on={Mic} off={MicOff} />
               <ControlBtn active={cam} onClick={() => setCam(!cam)} on={Video} off={VideoOff} />
-              <button className="rounded-xl p-3 bg-secondary/60 hover:bg-accent" title="Share screen">
+              <button className="rounded-xl p-3 bg-secondary/60 hover:bg-accent" title="Compartir pantalla">
                 <Monitor className="h-5 w-5" />
               </button>
               <button
@@ -123,8 +123,8 @@ function Studio() {
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline"><Sparkles className="h-4 w-4 text-neon" /> AI Tools</Button>
-              <Button variant="primary" className="!bg-destructive !bg-none">End Stream</Button>
+              <Button variant="outline"><Sparkles className="h-4 w-4 text-neon" /> Herramientas IA</Button>
+              <Button variant="primary" className="!bg-destructive !bg-none">Terminar directo</Button>
             </div>
           </div>
         </section>
@@ -134,17 +134,17 @@ function Studio() {
           <aside className="lg:w-80 glass rounded-2xl flex flex-col shrink-0 h-96 lg:h-auto">
             <div className="flex items-center justify-between p-3 border-b border-border">
               <h3 className="font-semibold text-sm flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" /> Live Chat
+                <MessageSquare className="h-4 w-4" /> Chat en vivo
               </h3>
-              <span className="text-[10px] font-bold text-neon tracking-wider">AI MODERATED</span>
+              <span className="text-[10px] font-bold text-neon tracking-wider">MODERADO POR IA</span>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm">
               {[
-                { user: "Sarah K.", msg: "This is amazing 🔥", color: "oklch(0.7 0.2 305)" },
-                { user: "Mike T.", msg: "How do you handle multi-platform audio sync?", color: "oklch(0.72 0.2 195)" },
-                { user: "AI Mod 🤖", msg: "Top question pinned by AI", color: "oklch(0.78 0.21 195)", ai: true },
-                { user: "Devon", msg: "Subbed!", color: "oklch(0.68 0.22 25)" },
-                { user: "Jamie L.", msg: "What mic are you using?", color: "oklch(0.65 0.2 145)" },
+                { user: "Sara K.", msg: "¡Esto es increíble 🔥", color: "oklch(0.7 0.2 305)" },
+                { user: "Miguel T.", msg: "¿Cómo manejas la sincronización de audio multi-plataforma?", color: "oklch(0.72 0.2 195)" },
+                { user: "Mod IA 🤖", msg: "Mejor pregunta fijada por la IA", color: "oklch(0.78 0.21 195)", ai: true },
+                { user: "Devon", msg: "¡Suscrito!", color: "oklch(0.68 0.22 25)" },
+                { user: "Jaime L.", msg: "¿Qué micrófono usas?", color: "oklch(0.65 0.2 145)" },
               ].map((m, i) => (
                 <div key={i} className={`flex gap-2 ${m.ai ? "rounded-lg bg-neon/10 p-2 border border-neon/20" : ""}`}>
                   <div
@@ -162,7 +162,7 @@ function Studio() {
             </div>
             <div className="p-3 border-t border-border flex gap-2">
               <input
-                placeholder="Send message..."
+                placeholder="Enviar mensaje..."
                 className="flex-1 rounded-lg bg-secondary/60 border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button className="rounded-lg gradient-primary-bg p-2 text-primary-foreground">

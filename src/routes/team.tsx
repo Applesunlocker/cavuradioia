@@ -5,7 +5,7 @@ import { teamMembers } from "@/lib/mock-data";
 import { UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/team")({
-  head: () => ({ meta: [{ title: "Team — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Equipo — NovaStream AI" }] }),
   component: Team,
 });
 
@@ -13,9 +13,9 @@ function Team() {
   return (
     <AppShell>
       <PageHeader
-        title="Team"
-        description="Collaborate on broadcasts with roles: Admin, Host, Producer, Guest."
-        action={<Button><UserPlus className="h-4 w-4" /> Invite member</Button>}
+        title="Equipo"
+        description="Colabora en transmisiones con roles: Admin, Host, Productor e Invitado."
+        action={<Button><UserPlus className="h-4 w-4" /> Invitar miembro</Button>}
       />
 
       <div className="glass rounded-2xl overflow-hidden">
@@ -29,7 +29,7 @@ function Team() {
             </div>
             <div className="flex-1">
               <p className="font-semibold">{m.name}</p>
-              <p className="text-xs text-muted-foreground">{m.online ? "Online now" : "Offline"}</p>
+              <p className="text-xs text-muted-foreground">{m.online ? "En línea ahora" : "Desconectado"}</p>
             </div>
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-semibold">{m.role}</span>
           </div>

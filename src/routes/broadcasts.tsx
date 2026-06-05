@@ -3,12 +3,20 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, StatusPill, Button } from "@/components/ui-bits";
 import { broadcasts } from "@/lib/mock-data";
-import { Plus, LayoutGrid, List, Search, Filter } from "lucide-react";
+import { Plus, LayoutGrid, List, Search } from "lucide-react";
 
 export const Route = createFileRoute("/broadcasts")({
-  head: () => ({ meta: [{ title: "Broadcasts — NovaStream AI" }] }),
+  head: () => ({ meta: [{ title: "Transmisiones — NovaStream AI" }] }),
   component: Broadcasts,
 });
+
+const STATUS_LABELS: Record<string, string> = {
+  all: "Todas",
+  live: "En vivo",
+  scheduled: "Programadas",
+  completed: "Finalizadas",
+  draft: "Borradores",
+};
 
 function Broadcasts() {
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -18,11 +26,11 @@ function Broadcasts() {
   return (
     <AppShell>
       <PageHeader
-        title="Broadcasts"
-        description="All your live shows, upcoming streams, and archived broadcasts in one place."
+        title="Transmisiones"
+        description="Todos tus directos, próximos streams y emisiones archivadas en un solo lugar."
         action={
           <Link to="/studio">
-            <Button><Plus className="h-4 w-4" /> New Broadcast</Button>
+            <Button><Plus className="h-4 w-4" /> Nueva transmisión</Button>
           </Link>
         }
       />
@@ -31,20 +39,20 @@ function Broadcasts() {
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Search broadcasts..."
+            placeholder="Buscar transmisiones..."
             className="w-full rounded-xl bg-secondary/60 border border-border pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {["all", "live", "scheduled", "completed", "draft"].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold capitalize transition-colors ${
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                 filter === s ? "gradient-primary-bg text-primary-foreground" : "bg-secondary/60 text-muted-foreground hover:text-foreground"
               }`}
             >
-              {s}
+              {STATUS_LABELS[s]}
             </button>
           ))}
         </div>
@@ -94,10 +102,10 @@ function Broadcasts() {
           <table className="w-full text-sm">
             <thead className="bg-secondary/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3">Title</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Date</th>
-                <th className="text-right px-4 py-3">Viewers</th>
+                <th className="text-left px-4 py-3">Título</th>
+                <th className="text-left px-4 py-3">Estado</th>
+                <th className="text-left px-4 py-3">Fecha</th>
+                <th className="text-right px-4 py-3">Espectadores</th>
                 <th className="text-right px-4 py-3">Engagement</th>
               </tr>
             </thead>
@@ -112,7 +120,7 @@ function Broadcasts() {
                   </td>
                   <td className="px-4 py-3"><StatusPill status={b.status} /></td>
                   <td className="px-4 py-3 text-muted-foreground">{b.date}</td>
-                  <td className="px-4 py-3 text-right">{b.peakViewers.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right">{b.peakViewers.toLocaleString("es")}</td>
                   <td className="px-4 py-3 text-right font-semibold text-neon">{b.engagement > 0 ? `${b.engagement}%` : "—"}</td>
                 </tr>
               ))}
