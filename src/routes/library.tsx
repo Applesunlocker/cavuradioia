@@ -13,28 +13,46 @@ export const Route = createFileRoute("/library")({
 function LibraryPage() {
   const videos = broadcasts.filter((b) => b.status === "completed");
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<{ title: string; moment: string; quote: string }[] | null>(null);
+  const [results, setResults] = useState<{
+    intent: string;
+    summary: string;
+    matches: { title: string; moment: string; quote: string }[];
+  } | null>(null);
+
+  const detectIntent = (q: string) => {
+    const lower = q.toLowerCase();
+    if (/(clip|short|highlight|momento)/.test(lower)) return "Buscar clips y momentos destacados";
+    if (/(quién|invitad|host|ponente)/.test(lower)) return "Identificar personas e invitados";
+    if (/(cómo|tutorial|explica|guía)/.test(lower)) return "Encontrar explicaciones y tutoriales";
+    if (/(error|problema|fallo|bug)/.test(lower)) return "Localizar incidencias y soluciones";
+    return "Búsqueda temática en transmisiones";
+  };
 
   const search = () => {
     const q = query.trim();
     if (!q) return;
-    setResults([
-      {
-        title: "Diseñando para 2026: Tendencias y Predicciones",
-        moment: "00:12:48",
-        quote: `"…cuando hablamos de ${q.toLowerCase()}, la clave está en iterar rápido con feedback real de la audiencia…"`,
-      },
-      {
-        title: "Detrás del Código: WebRTC en Tiempo Real a Fondo",
-        moment: "00:47:21",
-        quote: `"…un buen ejemplo de ${q.toLowerCase()} es cómo medimos el engagement minuto a minuto…"`,
-      },
-      {
-        title: "IA en Marketing: Mesa Redonda en Vivo",
-        moment: "01:03:10",
-        quote: `"…la IA ya nos permite resumir horas de contenido sobre ${q.toLowerCase()} en clips listos para publicar…"`,
-      },
-    ]);
+    const lower = q.toLowerCase();
+    setResults({
+      intent: detectIntent(q),
+      summary: `He revisado tus 3 transmisiones más relevantes y encontré 3 momentos donde se aborda «${q}». El tema aparece sobre todo en contextos de producto y estrategia, con un sentimiento mayoritariamente positivo de la audiencia. Te recomiendo convertir el segmento de WebRTC en un short vertical: es el de mayor retención.`,
+      matches: [
+        {
+          title: "Diseñando para 2026: Tendencias y Predicciones",
+          moment: "00:12:48",
+          quote: `"…cuando hablamos de ${lower}, la clave está en iterar rápido con feedback real de la audiencia…"`,
+        },
+        {
+          title: "Detrás del Código: WebRTC en Tiempo Real a Fondo",
+          moment: "00:47:21",
+          quote: `"…un buen ejemplo de ${lower} es cómo medimos el engagement minuto a minuto…"`,
+        },
+        {
+          title: "IA en Marketing: Mesa Redonda en Vivo",
+          moment: "01:03:10",
+          quote: `"…la IA ya nos permite resumir horas de contenido sobre ${lower} en clips listos para publicar…"`,
+        },
+      ],
+    });
   };
 
   return (
@@ -58,12 +76,19 @@ function LibraryPage() {
         </div>
 
         {results && (
-          <div className="mt-4 space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-neon font-bold">Coincidencias semánticas</p>
-            {results.map((r, i) => (
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl bg-background/60 border border-neon/20 p-3">
+              <p className="text-[10px] uppercase tracking-widest text-neon font-bold mb-1">Intención detectada</p>
+              <p className="text-sm font-semibold">{results.intent}</p>
+              <p className="text-[10px] uppercase tracking-widest text-neon font-bold mt-3 mb-1">Resumen IA</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{results.summary}</p>
+            </div>
+
+            <p className="text-[10px] uppercase tracking-widest text-neon font-bold pt-1">Coincidencias semánticas</p>
+            {results.matches.map((r, i) => (
               <div key={i} className="rounded-xl bg-background/60 border border-border p-3 flex items-start gap-3">
                 <span className="text-xs font-mono text-neon shrink-0 mt-0.5">{r.moment}</span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold truncate">{r.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 italic">{r.quote}</p>
                 </div>
