@@ -156,6 +156,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="flex-1 pt-14 lg:pt-0 px-5 lg:px-8 py-6 lg:py-8 overflow-x-hidden">
           {children}
         </main>
+
+        <footer className="px-5 lg:px-8 py-4 text-[11px] text-muted-foreground border-t border-border">
+          © 1997 - 2026 PCVEN, C.A. Todos los derechos reservados. Desarrollado por Ing. Carlos Vásquez
+        </footer>
       </div>
     </div>
   );
