@@ -56,7 +56,20 @@ function AITools() {
               placeholder="ej. IA en gestión de producto"
               className="flex-1 rounded-xl bg-background/60 border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-neon"
             />
-            <Button variant="neon" onClick={generate}><Send className="h-4 w-4" /> Generar</Button>
+            <Button variant="neon" onClick={() => generate()}><Send className="h-4 w-4" /> Generar</Button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="text-xs text-muted-foreground self-center mr-1">Prueba:</span>
+            {suggestions.map((s) => (
+              <button
+                key={s}
+                onClick={() => generate(s)}
+                className="text-xs rounded-full border border-border bg-background/40 hover:border-neon/50 hover:text-neon px-3 py-1.5 transition-colors"
+              >
+                {s}
+              </button>
+            ))}
           </div>
 
           {output && (
