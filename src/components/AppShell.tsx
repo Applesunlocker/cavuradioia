@@ -6,6 +6,7 @@ import {
   Clapperboard,
   Library,
   Share2,
+  Sparkles,
   Mic,
   BarChart3,
   Users,
