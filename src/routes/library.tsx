@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, Button } from "@/components/ui-bits";
 import { broadcasts } from "@/lib/mock-data";
@@ -11,6 +12,31 @@ export const Route = createFileRoute("/library")({
 
 function LibraryPage() {
   const videos = broadcasts.filter((b) => b.status === "completed");
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<{ title: string; moment: string; quote: string }[] | null>(null);
+
+  const search = () => {
+    const q = query.trim();
+    if (!q) return;
+    setResults([
+      {
+        title: "Diseñando para 2026: Tendencias y Predicciones",
+        moment: "00:12:48",
+        quote: `"…cuando hablamos de ${q.toLowerCase()}, la clave está en iterar rápido con feedback real de la audiencia…"`,
+      },
+      {
+        title: "Detrás del Código: WebRTC en Tiempo Real a Fondo",
+        moment: "00:47:21",
+        quote: `"…un buen ejemplo de ${q.toLowerCase()} es cómo medimos el engagement minuto a minuto…"`,
+      },
+      {
+        title: "IA en Marketing: Mesa Redonda en Vivo",
+        moment: "01:03:10",
+        quote: `"…la IA ya nos permite resumir horas de contenido sobre ${q.toLowerCase()} en clips listos para publicar…"`,
+      },
+    ]);
+  };
+
   return (
     <AppShell>
       <PageHeader
@@ -22,11 +48,30 @@ function LibraryPage() {
         <div className="flex items-center gap-3">
           <Sparkles className="h-5 w-5 text-neon shrink-0" />
           <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && search()}
             placeholder='Prueba: "muéstrame clips donde hablo sobre estrategia de marketing"'
             className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground"
           />
-          <Button variant="neon" className="!py-2 !text-xs">Buscar con IA</Button>
+          <Button variant="neon" className="!py-2 !text-xs" onClick={search}>Buscar con IA</Button>
         </div>
+
+        {results && (
+          <div className="mt-4 space-y-2">
+            <p className="text-[10px] uppercase tracking-widest text-neon font-bold">Coincidencias semánticas</p>
+            {results.map((r, i) => (
+              <div key={i} className="rounded-xl bg-background/60 border border-border p-3 flex items-start gap-3">
+                <span className="text-xs font-mono text-neon shrink-0 mt-0.5">{r.moment}</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate">{r.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 italic">{r.quote}</p>
+                </div>
+                <button className="text-xs text-primary hover:underline shrink-0">Ir al momento →</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
