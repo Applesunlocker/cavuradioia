@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Logo />
             <div className="flex flex-col leading-tight">
               <span className="font-bold tracking-tight">NovaStream</span>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">AI Studio</span>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Estudio IA</span>
             </div>
           </Link>
         </div>
