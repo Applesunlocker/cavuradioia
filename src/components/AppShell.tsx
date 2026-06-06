@@ -171,7 +171,7 @@ function Logo() {
     <div className="relative h-8 w-8 rounded-lg gradient-vibrant-bg overflow-hidden flex items-center justify-center glow">
       <div className="absolute inset-0 gradient-primary-bg" />
       <div className="absolute inset-[2px] rounded-md bg-background/60 backdrop-blur" />
-      <Sparkles className="relative h-4 w-4 text-neon" />
+      <Mic className="relative h-4 w-4 text-neon animate-pulse drop-shadow-[0_0_6px_rgba(56,189,248,0.8)]" />
     </div>
   );
 }
