@@ -14,10 +14,19 @@ function AITools() {
   const [prompt, setPrompt] = useState("");
   const [output, setOutput] = useState<string | null>(null);
 
-  const generate = () => {
-    if (!prompt.trim()) return;
+  const suggestions = [
+    "IA en gestión de producto",
+    "Cómo lanzar un podcast en 2026",
+    "Estrategias de crecimiento en YouTube",
+    "Entrevista con un fundador early-stage",
+  ];
+
+  const generate = (text?: string) => {
+    const q = (text ?? prompt).trim();
+    if (!q) return;
+    setPrompt(q);
     setOutput(
-      `✨ Título sugerido: "${prompt} — La guía definitiva 2026"\n\n📝 Descripción: Un análisis a fondo sobre ${prompt.toLowerCase()}, con ejemplos reales y frameworks aplicables desde el primer día. Con invitados expertos y preguntas en vivo.\n\n🎯 Etiquetas SEO: ${prompt}, masterclass, 2026, en vivo, IA\n\n🎬 Gancho inicial: "Si alguna vez has luchado con ${prompt.toLowerCase()}, los próximos 60 minutos cambiarán cómo lo ves para siempre."`
+      `✨ Título sugerido: "${q} — La guía definitiva 2026"\n\n📝 Descripción: Un análisis a fondo sobre ${q.toLowerCase()}, con ejemplos reales y frameworks aplicables desde el primer día. Acompañado de invitados expertos y preguntas en vivo del público.\n\n🎯 Etiquetas SEO: ${q}, masterclass, 2026, en vivo, IA, español\n\n🎬 Gancho inicial: "Si alguna vez has luchado con ${q.toLowerCase()}, los próximos 60 minutos cambiarán cómo lo ves para siempre."\n\n🖼️ Idea de miniatura: Primer plano del presentador con expresión de asombro, texto grande en amarillo neón "${q.toUpperCase()}" y un fondo degradado púrpura-cian.\n\n📣 Llamada a la acción: "Suscríbete y activa la campanita para no perderte el siguiente directo sobre ${q.toLowerCase()}."`
     );
   };
 
@@ -47,7 +56,20 @@ function AITools() {
               placeholder="ej. IA en gestión de producto"
               className="flex-1 rounded-xl bg-background/60 border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-neon"
             />
-            <Button variant="neon" onClick={generate}><Send className="h-4 w-4" /> Generar</Button>
+            <Button variant="neon" onClick={() => generate()}><Send className="h-4 w-4" /> Generar</Button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="text-xs text-muted-foreground self-center mr-1">Prueba:</span>
+            {suggestions.map((s) => (
+              <button
+                key={s}
+                onClick={() => generate(s)}
+                className="text-xs rounded-full border border-border bg-background/40 hover:border-neon/50 hover:text-neon px-3 py-1.5 transition-colors"
+              >
+                {s}
+              </button>
+            ))}
           </div>
 
           {output && (
