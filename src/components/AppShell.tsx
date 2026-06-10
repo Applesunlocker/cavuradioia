@@ -174,9 +174,65 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
 
         <footer className="px-5 lg:px-8 py-4 text-[11px] text-muted-foreground border-t border-border">
-          © 1997 - 2026 PCVEN, C.A. Todos los derechos reservados. Desarrollado por Ing. Carlos Vásquez
+          © {year === 2026 ? "1997 - 2026" : `1997 - ${year}`} PCVEN, C.A. Todos los derechos reservados. Desarrollado por Ing. Carlos Vásquez
         </footer>
       </div>
+
+      {/* Floating action buttons */}
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+        <button
+          onClick={() => setShowQR(true)}
+          aria-label="Mostrar código QR"
+          className="group h-12 w-12 rounded-full glass-strong border border-border flex items-center justify-center hover:scale-110 transition-transform glow"
+        >
+          <QrCode className="h-5 w-5 text-neon" />
+        </button>
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contactar por WhatsApp"
+          className="h-14 w-14 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform animate-pulse"
+          style={{ background: "linear-gradient(135deg,#25D366,#128C7E)", boxShadow: "0 0 20px rgba(37,211,102,0.55)" }}
+        >
+          <MessageCircle className="h-7 w-7" fill="currentColor" />
+        </a>
+      </div>
+
+      {showQR && (
+        <div
+          onClick={() => setShowQR(false)}
+          className="fixed inset-0 z-50 bg-background/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="glass-strong rounded-2xl p-6 max-w-xs w-full text-center border border-border animate-scale-in"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold">Escanea para contactarnos</h3>
+              <button onClick={() => setShowQR(false)} aria-label="Cerrar" className="p-1 rounded hover:bg-accent">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="rounded-xl overflow-hidden bg-[#0F172A] p-2">
+              <img src={qrSrc} alt="Código QR de WhatsApp" className="w-full h-auto" />
+            </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Apunta tu cámara al QR o pulsa el botón de WhatsApp para iniciar chat.
+            </p>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
+              style={{ background: "linear-gradient(135deg,#25D366,#128C7E)" }}
+            >
+              <MessageCircle className="h-4 w-4" fill="currentColor" />
+              Abrir WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
