@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Radio,
@@ -16,7 +16,12 @@ import {
   Bell,
   Menu,
   X,
+  QrCode,
+  MessageCircle,
 } from "lucide-react";
+
+const WHATSAPP_NUMBER = "584120000000"; // formato internacional sin "+"
+const WHATSAPP_MESSAGE = "Hola, me interesa NovaStream AI";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean };
 const nav: NavItem[] = [
