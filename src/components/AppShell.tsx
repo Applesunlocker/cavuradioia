@@ -39,6 +39,16 @@ const nav: NavItem[] = [
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const [showQR, setShowQR] = useState(false);
+
+  useEffect(() => {
+    const id = setInterval(() => setYear(new Date().getFullYear()), 60 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(waUrl)}&bgcolor=0F172A&color=38BDF8&margin=10`;
 
   return (
     <div className="min-h-screen flex w-full bg-background text-foreground">
