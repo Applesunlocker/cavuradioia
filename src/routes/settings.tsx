@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui-bits";
+import { loadContact, saveContact, buildWhatsAppUrl } from "@/lib/contact-config";
+import { MessageCircle, QrCode, Check } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Ajustes — NovaStream AI" }] }),
@@ -8,17 +11,34 @@ export const Route = createFileRoute("/settings")({
 });
 
 function Settings() {
+  const [contact, setContact] = useState(() => loadContact());
+  const [draft, setDraft] = useState(contact);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => setDraft(contact), [contact]);
+
+  const previewUrl = buildWhatsAppUrl(draft);
+  const qrPreview = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}&bgcolor=0F172A&color=38BDF8&margin=8`;
+
+  const handleSave = () => {
+    const clean = saveContact(draft);
+    setContact(clean);
+    setDraft(clean);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   return (
     <AppShell>
       <PageHeader title="Ajustes" description="Gestiona tu perfil, facturación, integraciones y preferencias." />
 
       <div className="grid lg:grid-cols-3 gap-6">
         <nav className="glass rounded-2xl p-3 lg:col-span-1 h-fit">
-          {["Perfil", "Facturación", "Integraciones", "Notificaciones", "Idioma", "Seguridad"].map((s, i) => (
+          {["Perfil", "Contacto", "Facturación", "Integraciones", "Notificaciones", "Idioma", "Seguridad"].map((s, i) => (
             <button
               key={s}
               className={`w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium ${
-                i === 0 ? "bg-accent" : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                i === 1 ? "bg-accent" : "hover:bg-accent text-muted-foreground hover:text-foreground"
               }`}
             >
               {s}
@@ -28,29 +48,76 @@ function Settings() {
 
         <div className="glass rounded-2xl p-6 lg:col-span-2 space-y-5">
           <div>
-            <h2 className="text-lg font-semibold">Perfil</h2>
-            <p className="text-sm text-muted-foreground">Información pública visible en tus transmisiones.</p>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-neon" /> Contacto por WhatsApp
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Configura el número y el mensaje. El botón flotante y el código QR se actualizan automáticamente.
+            </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full gradient-primary-bg flex items-center justify-center font-bold text-primary-foreground text-xl">AR</div>
-            <button className="rounded-lg bg-secondary/60 px-3 py-2 text-sm font-medium hover:bg-accent">Cambiar avatar</button>
+
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Número de WhatsApp (formato internacional, sin "+")
+            </label>
+            <input
+              value={draft.whatsappNumber}
+              onChange={(e) => setDraft({ ...draft, whatsappNumber: e.target.value.replace(/\D/g, "") })}
+              placeholder="584120000000"
+              inputMode="numeric"
+              className="mt-1.5 w-full rounded-lg bg-secondary/60 border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">Ej: 584120000000 (Venezuela), 34612345678 (España).</p>
           </div>
-          {[
-            { label: "Nombre público", value: "Alex Rivera" },
-            { label: "Correo electrónico", value: "alex@novastream.ai" },
-            { label: "Biografía", value: "Creador de streaming en vivo. Apasionado de la IA." },
-          ].map((f) => (
-            <div key={f.label}>
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{f.label}</label>
-              <input
-                defaultValue={f.value}
-                className="mt-1.5 w-full rounded-lg bg-secondary/60 border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Mensaje predeterminado
+            </label>
+            <textarea
+              value={draft.whatsappMessage}
+              onChange={(e) => setDraft({ ...draft, whatsappMessage: e.target.value })}
+              rows={3}
+              className="mt-1.5 w-full rounded-lg bg-secondary/60 border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            />
+          </div>
+
+          <div className="rounded-xl border border-border p-4 flex flex-col sm:flex-row gap-4 items-center bg-card/40">
+            <div className="rounded-lg overflow-hidden bg-[#0F172A] p-2 shrink-0">
+              <img src={qrPreview} alt="Vista previa del QR" className="h-32 w-32" />
             </div>
-          ))}
+            <div className="flex-1 min-w-0 text-center sm:text-left">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 justify-center sm:justify-start">
+                <QrCode className="h-3.5 w-3.5" /> Vista previa
+              </p>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 block text-sm text-primary hover:underline truncate"
+              >
+                {previewUrl}
+              </a>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Los cambios se aplican al guardar y se sincronizan en todas las páginas.
+              </p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 pt-2">
-            <button className="rounded-xl gradient-primary-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground glow">Guardar cambios</button>
-            <button className="rounded-xl px-5 py-2.5 text-sm font-semibold hover:bg-accent">Cancelar</button>
+            <button
+              onClick={handleSave}
+              className="rounded-xl gradient-primary-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground glow inline-flex items-center gap-2"
+            >
+              {saved ? <Check className="h-4 w-4" /> : null}
+              {saved ? "Guardado" : "Guardar cambios"}
+            </button>
+            <button
+              onClick={() => setDraft(contact)}
+              className="rounded-xl px-5 py-2.5 text-sm font-semibold hover:bg-accent"
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       </div>
