@@ -19,9 +19,7 @@ import {
   QrCode,
   MessageCircle,
 } from "lucide-react";
-
-const WHATSAPP_NUMBER = "584120000000"; // formato internacional sin "+"
-const WHATSAPP_MESSAGE = "Hola, me interesa NovaStream AI";
+import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean };
 const nav: NavItem[] = [
