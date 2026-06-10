@@ -199,7 +199,8 @@ function Settings() {
           <div className="flex items-center gap-2 pt-2">
             <button
               onClick={handleSave}
-              className="rounded-xl gradient-primary-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground glow inline-flex items-center gap-2"
+              disabled={!validation.success}
+              className="rounded-xl gradient-primary-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground glow inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saved ? <Check className="h-4 w-4" /> : null}
               {saved ? "Guardado" : "Guardar cambios"}
