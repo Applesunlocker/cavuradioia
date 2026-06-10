@@ -1,30 +1,76 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui-bits";
 import { loadContact, saveContact, buildWhatsAppUrl } from "@/lib/contact-config";
-import { MessageCircle, QrCode, Check } from "lucide-react";
+import { MessageCircle, QrCode, Check, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Ajustes — NovaStream AI" }] }),
   component: Settings,
 });
 
+const contactSchema = z.object({
+  whatsappNumber: z
+    .string()
+    .trim()
+    .regex(/^\d+$/, { message: "Solo se permiten dígitos (sin '+', espacios ni guiones)." })
+    .min(8, { message: "El número es demasiado corto (mín. 8 dígitos)." })
+    .max(15, { message: "El número es demasiado largo (máx. 15 dígitos, estándar E.164)." }),
+  whatsappMessage: z
+    .string()
+    .trim()
+    .min(1, { message: "El mensaje no puede estar vacío." })
+    .max(300, { message: "El mensaje no debe superar 300 caracteres." }),
+});
+
+type FieldErrors = Partial<Record<"whatsappNumber" | "whatsappMessage", string>>;
+
 function Settings() {
   const [contact, setContact] = useState(() => loadContact());
   const [draft, setDraft] = useState(contact);
   const [saved, setSaved] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => setDraft(contact), [contact]);
 
-  const previewUrl = buildWhatsAppUrl(draft);
-  const qrPreview = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}&bgcolor=0F172A&color=38BDF8&margin=8`;
+  const validation = useMemo(() => contactSchema.safeParse(draft), [draft]);
+  const liveErrors: FieldErrors = useMemo(() => {
+    if (validation.success) return {};
+    const out: FieldErrors = {};
+    for (const issue of validation.error.issues) {
+      const key = issue.path[0] as keyof FieldErrors;
+      if (key && !out[key]) out[key] = issue.message;
+    }
+    return out;
+  }, [validation]);
+
+  const shownErrors: FieldErrors = {
+    whatsappNumber: touched.whatsappNumber || errors.whatsappNumber ? liveErrors.whatsappNumber : undefined,
+    whatsappMessage: touched.whatsappMessage || errors.whatsappMessage ? liveErrors.whatsappMessage : undefined,
+  };
+
+  const previewUrl = validation.success ? buildWhatsAppUrl(draft) : "";
+  const qrPreview = validation.success
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}&bgcolor=0F172A&color=38BDF8&margin=8`
+    : "";
 
   const handleSave = () => {
-    const clean = saveContact(draft);
+    setTouched({ whatsappNumber: true, whatsappMessage: true });
+    if (!validation.success) {
+      setErrors(liveErrors);
+      toast.error("Revisa los campos marcados.");
+      return;
+    }
+    setErrors({});
+    const clean = saveContact(validation.data);
     setContact(clean);
     setDraft(clean);
     setSaved(true);
+    toast.success("Contacto actualizado correctamente.");
     setTimeout(() => setSaved(false), 2000);
   };
 
