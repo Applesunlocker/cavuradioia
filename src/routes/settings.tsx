@@ -103,52 +103,98 @@ function Settings() {
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="wa-number" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Número de WhatsApp (formato internacional, sin "+")
             </label>
             <input
+              id="wa-number"
               value={draft.whatsappNumber}
-              onChange={(e) => setDraft({ ...draft, whatsappNumber: e.target.value.replace(/\D/g, "") })}
+              onChange={(e) => setDraft({ ...draft, whatsappNumber: e.target.value.replace(/\D/g, "").slice(0, 15) })}
+              onBlur={() => setTouched((t) => ({ ...t, whatsappNumber: true }))}
               placeholder="584120000000"
               inputMode="numeric"
-              className="mt-1.5 w-full rounded-lg bg-secondary/60 border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              maxLength={15}
+              aria-invalid={!!shownErrors.whatsappNumber}
+              aria-describedby="wa-number-help"
+              className={`mt-1.5 w-full rounded-lg bg-secondary/60 border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
+                shownErrors.whatsappNumber
+                  ? "border-destructive/60 focus:ring-destructive/40"
+                  : "border-border focus:ring-ring"
+              }`}
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">Ej: 584120000000 (Venezuela), 34612345678 (España).</p>
+            {shownErrors.whatsappNumber ? (
+              <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
+                <AlertCircle className="h-3 w-3" /> {shownErrors.whatsappNumber}
+              </p>
+            ) : (
+              <p id="wa-number-help" className="mt-1 text-[11px] text-muted-foreground">
+                Solo dígitos, 8–15 caracteres (E.164). Ej: 584120000000, 34612345678.
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="wa-message" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Mensaje predeterminado
             </label>
             <textarea
+              id="wa-message"
               value={draft.whatsappMessage}
-              onChange={(e) => setDraft({ ...draft, whatsappMessage: e.target.value })}
+              onChange={(e) => setDraft({ ...draft, whatsappMessage: e.target.value.slice(0, 300) })}
+              onBlur={() => setTouched((t) => ({ ...t, whatsappMessage: true }))}
               rows={3}
-              className="mt-1.5 w-full rounded-lg bg-secondary/60 border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              maxLength={300}
+              aria-invalid={!!shownErrors.whatsappMessage}
+              className={`mt-1.5 w-full rounded-lg bg-secondary/60 border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 resize-none ${
+                shownErrors.whatsappMessage
+                  ? "border-destructive/60 focus:ring-destructive/40"
+                  : "border-border focus:ring-ring"
+              }`}
             />
+            <div className="mt-1 flex items-center justify-between gap-2">
+              {shownErrors.whatsappMessage ? (
+                <p className="flex items-center gap-1 text-[11px] text-destructive">
+                  <AlertCircle className="h-3 w-3" /> {shownErrors.whatsappMessage}
+                </p>
+              ) : (
+                <span className="text-[11px] text-muted-foreground">Texto que se precarga al abrir el chat.</span>
+              )}
+              <span className="text-[11px] text-muted-foreground tabular-nums">{draft.whatsappMessage.length}/300</span>
+            </div>
           </div>
 
           <div className="rounded-xl border border-border p-4 flex flex-col sm:flex-row gap-4 items-center bg-card/40">
-            <div className="rounded-lg overflow-hidden bg-[#0F172A] p-2 shrink-0">
-              <img src={qrPreview} alt="Vista previa del QR" className="h-32 w-32" />
-            </div>
+            {validation.success ? (
+              <div className="rounded-lg overflow-hidden bg-[#0F172A] p-2 shrink-0">
+                <img src={qrPreview} alt="Vista previa del QR" className="h-32 w-32" />
+              </div>
+            ) : (
+              <div className="h-32 w-32 rounded-lg border border-dashed border-border flex items-center justify-center text-[11px] text-muted-foreground text-center px-2 shrink-0">
+                Corrige los errores para previsualizar el QR
+              </div>
+            )}
             <div className="flex-1 min-w-0 text-center sm:text-left">
               <p className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 justify-center sm:justify-start">
                 <QrCode className="h-3.5 w-3.5" /> Vista previa
               </p>
-              <a
-                href={previewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 block text-sm text-primary hover:underline truncate"
-              >
-                {previewUrl}
-              </a>
+              {validation.success ? (
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block text-sm text-primary hover:underline truncate"
+                >
+                  {previewUrl}
+                </a>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">—</p>
+              )}
               <p className="mt-2 text-[11px] text-muted-foreground">
                 Los cambios se aplican al guardar y se sincronizan en todas las páginas.
               </p>
             </div>
           </div>
+
 
           <div className="flex items-center gap-2 pt-2">
             <button
