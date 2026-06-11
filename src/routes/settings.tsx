@@ -37,8 +37,7 @@ function Settings() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => setDraft(contact), [contact]);
+  const draftAtDebounceStart = useRef<typeof draft | null>(null);
 
   const validation = useMemo(() => contactSchema.safeParse(draft), [draft]);
   const liveErrors: FieldErrors = useMemo(() => {
