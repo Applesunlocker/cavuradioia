@@ -77,7 +77,6 @@ function Settings() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    // Solo autoguardar si hay cambios respecto al contacto guardado
     const sameNumber = draft.whatsappNumber === contact.whatsappNumber;
     const sameMessage = draft.whatsappMessage === contact.whatsappMessage;
     if (sameNumber && sameMessage) {
@@ -85,20 +84,22 @@ function Settings() {
       return;
     }
 
-    if (!validation.success) {
+    const parsed = contactSchema.safeParse(draft);
+    if (!parsed.success) {
       setSaveStatus("idle");
       return;
     }
 
     setSaveStatus("saving");
+    draftAtDebounceStart.current = draft;
     debounceRef.current = setTimeout(() => {
-      performSave(validation.data);
-    }, 800);
+      performSave(parsed.data);
+    }, 600);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [draft]);
+  }, [draft, contact]);
 
   useEffect(() => {
     if (saveStatus === "saved" || saveStatus === "error") {
