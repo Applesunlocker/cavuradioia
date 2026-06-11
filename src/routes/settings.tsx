@@ -65,7 +65,6 @@ function Settings() {
     try {
       const clean = saveContact(data);
       setContact(clean);
-      setDraft(clean);
       setErrors({});
       setSaveStatus("saved");
       toast.success("Contacto actualizado correctamente.");
