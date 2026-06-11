@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui-bits";
 import { loadContact, saveContact, buildWhatsAppUrl } from "@/lib/contact-config";
-import { MessageCircle, QrCode, Check, AlertCircle } from "lucide-react";
+import { MessageCircle, QrCode, Check, AlertCircle, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Ajustes — NovaStream AI" }] }),
@@ -28,12 +28,15 @@ const contactSchema = z.object({
 
 type FieldErrors = Partial<Record<"whatsappNumber" | "whatsappMessage", string>>;
 
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 function Settings() {
   const [contact, setContact] = useState(() => loadContact());
   const [draft, setDraft] = useState(contact);
-  const [saved, setSaved] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => setDraft(contact), [contact]);
 
@@ -58,7 +61,55 @@ function Settings() {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}&bgcolor=0F172A&color=38BDF8&margin=8`
     : "";
 
-  const handleSave = () => {
+  const performSave = (data: z.infer<typeof contactSchema>) => {
+    setSaveStatus("saving");
+    try {
+      const clean = saveContact(data);
+      setContact(clean);
+      setDraft(clean);
+      setErrors({});
+      setSaveStatus("saved");
+      toast.success("Contacto actualizado correctamente.");
+    } catch {
+      setSaveStatus("error");
+      toast.error("No se pudo guardar. Intenta de nuevo.");
+    }
+  };
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    // Solo autoguardar si hay cambios respecto al contacto guardado
+    const sameNumber = draft.whatsappNumber === contact.whatsappNumber;
+    const sameMessage = draft.whatsappMessage === contact.whatsappMessage;
+    if (sameNumber && sameMessage) {
+      setSaveStatus("idle");
+      return;
+    }
+
+    if (!validation.success) {
+      setSaveStatus("idle");
+      return;
+    }
+
+    setSaveStatus("saving");
+    debounceRef.current = setTimeout(() => {
+      performSave(validation.data);
+    }, 800);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [draft]);
+
+  useEffect(() => {
+    if (saveStatus === "saved" || saveStatus === "error") {
+      const id = setTimeout(() => setSaveStatus("idle"), 2000);
+      return () => clearTimeout(id);
+    }
+  }, [saveStatus]);
+
+  const handleManualSave = () => {
     setTouched({ whatsappNumber: true, whatsappMessage: true });
     if (!validation.success) {
       setErrors(liveErrors);
@@ -66,13 +117,22 @@ function Settings() {
       return;
     }
     setErrors({});
-    const clean = saveContact(validation.data);
-    setContact(clean);
-    setDraft(clean);
-    setSaved(true);
-    toast.success("Contacto actualizado correctamente.");
-    setTimeout(() => setSaved(false), 2000);
+    performSave(validation.data);
   };
+
+  const statusLabel = {
+    idle: "Guardar cambios",
+    saving: "Guardando…",
+    saved: "Guardado",
+    error: "Error al guardar",
+  }[saveStatus];
+
+  const statusIcon = {
+    idle: null,
+    saving: <Loader2 className="h-4 w-4 animate-spin" />,
+    saved: <Check className="h-4 w-4" />,
+    error: <AlertCircle className="h-4 w-4" />,
+  }[saveStatus];
 
   return (
     <AppShell>
@@ -195,15 +255,14 @@ function Settings() {
             </div>
           </div>
 
-
           <div className="flex items-center gap-2 pt-2">
             <button
-              onClick={handleSave}
-              disabled={!validation.success}
+              onClick={handleManualSave}
+              disabled={!validation.success || saveStatus === "saving"}
               className="rounded-xl gradient-primary-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground glow inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saved ? <Check className="h-4 w-4" /> : null}
-              {saved ? "Guardado" : "Guardar cambios"}
+              {statusIcon}
+              {statusLabel}
             </button>
             <button
               onClick={() => setDraft(contact)}
