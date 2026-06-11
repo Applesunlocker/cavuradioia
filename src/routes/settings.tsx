@@ -37,8 +37,7 @@ function Settings() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => setDraft(contact), [contact]);
+  const draftAtDebounceStart = useRef<typeof draft | null>(null);
 
   const validation = useMemo(() => contactSchema.safeParse(draft), [draft]);
   const liveErrors: FieldErrors = useMemo(() => {
@@ -66,7 +65,6 @@ function Settings() {
     try {
       const clean = saveContact(data);
       setContact(clean);
-      setDraft(clean);
       setErrors({});
       setSaveStatus("saved");
       toast.success("Contacto actualizado correctamente.");
@@ -79,7 +77,6 @@ function Settings() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    // Solo autoguardar si hay cambios respecto al contacto guardado
     const sameNumber = draft.whatsappNumber === contact.whatsappNumber;
     const sameMessage = draft.whatsappMessage === contact.whatsappMessage;
     if (sameNumber && sameMessage) {
@@ -87,20 +84,22 @@ function Settings() {
       return;
     }
 
-    if (!validation.success) {
+    const parsed = contactSchema.safeParse(draft);
+    if (!parsed.success) {
       setSaveStatus("idle");
       return;
     }
 
     setSaveStatus("saving");
+    draftAtDebounceStart.current = draft;
     debounceRef.current = setTimeout(() => {
-      performSave(validation.data);
-    }, 800);
+      performSave(parsed.data);
+    }, 600);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [draft]);
+  }, [draft, contact]);
 
   useEffect(() => {
     if (saveStatus === "saved" || saveStatus === "error") {
