@@ -5,7 +5,7 @@ import { aiTools } from "@/lib/mock-data";
 import { Sparkles, Send } from "lucide-react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/ai-tools")({
+export const Route = createFileRoute("/_authenticated/ai-tools")({
   head: () => ({ meta: [{ title: "Herramientas IA — NovaStream AI" }] }),
   component: AITools,
 });

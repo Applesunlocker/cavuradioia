@@ -4,7 +4,7 @@ import { PageHeader, Button } from "@/components/ui-bits";
 import { teamMembers } from "@/lib/mock-data";
 import { UserPlus } from "lucide-react";
 
-export const Route = createFileRoute("/team")({
+export const Route = createFileRoute("/_authenticated/team")({
   head: () => ({ meta: [{ title: "Equipo — NovaStream AI" }] }),
   component: Team,
 });

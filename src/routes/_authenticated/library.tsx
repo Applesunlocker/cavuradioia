@@ -5,7 +5,7 @@ import { PageHeader, Button } from "@/components/ui-bits";
 import { broadcasts } from "@/lib/mock-data";
 import { Sparkles, Play, Download, Scissors } from "lucide-react";
 
-export const Route = createFileRoute("/library")({
+export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({ meta: [{ title: "Librería — NovaStream AI" }] }),
   component: LibraryPage,
 });

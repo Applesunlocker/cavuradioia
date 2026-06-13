@@ -5,7 +5,7 @@ import { PageHeader, StatusPill, Button } from "@/components/ui-bits";
 import { broadcasts } from "@/lib/mock-data";
 import { Plus, LayoutGrid, List, Search } from "lucide-react";
 
-export const Route = createFileRoute("/broadcasts")({
+export const Route = createFileRoute("/_authenticated/broadcasts")({
   head: () => ({ meta: [{ title: "Transmisiones — NovaStream AI" }] }),
   component: Broadcasts,
 });

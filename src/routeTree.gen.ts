@@ -14,11 +14,11 @@ import { Route as StudioRouteImport } from './routes/studio'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as DestinationsRouteImport } from './routes/destinations'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BroadcastsRouteImport } from './routes/broadcasts'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AiToolsRouteImport } from './routes/ai-tools'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
@@ -45,11 +45,6 @@ const DestinationsRoute = DestinationsRouteImport.update({
   path: '/destinations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BroadcastsRoute = BroadcastsRouteImport.update({
   id: '/broadcasts',
   path: '/broadcasts',
@@ -70,30 +65,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/_authenticated/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-tools': typeof AiToolsRoute
   '/analytics': typeof AnalyticsRoute
   '/broadcasts': typeof BroadcastsRoute
-  '/dashboard': typeof DashboardRoute
   '/destinations': typeof DestinationsRoute
   '/library': typeof LibraryRoute
   '/settings': typeof SettingsRoute
   '/studio': typeof StudioRoute
   '/team': typeof TeamRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-tools': typeof AiToolsRoute
   '/analytics': typeof AnalyticsRoute
   '/broadcasts': typeof BroadcastsRoute
-  '/dashboard': typeof DashboardRoute
   '/destinations': typeof DestinationsRoute
   '/library': typeof LibraryRoute
   '/settings': typeof SettingsRoute
   '/studio': typeof StudioRoute
   '/team': typeof TeamRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +101,12 @@ export interface FileRoutesById {
   '/ai-tools': typeof AiToolsRoute
   '/analytics': typeof AnalyticsRoute
   '/broadcasts': typeof BroadcastsRoute
-  '/dashboard': typeof DashboardRoute
   '/destinations': typeof DestinationsRoute
   '/library': typeof LibraryRoute
   '/settings': typeof SettingsRoute
   '/studio': typeof StudioRoute
   '/team': typeof TeamRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,36 +115,36 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/analytics'
     | '/broadcasts'
-    | '/dashboard'
     | '/destinations'
     | '/library'
     | '/settings'
     | '/studio'
     | '/team'
+    | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ai-tools'
     | '/analytics'
     | '/broadcasts'
-    | '/dashboard'
     | '/destinations'
     | '/library'
     | '/settings'
     | '/studio'
     | '/team'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/ai-tools'
     | '/analytics'
     | '/broadcasts'
-    | '/dashboard'
     | '/destinations'
     | '/library'
     | '/settings'
     | '/studio'
     | '/team'
+    | '/_authenticated/dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -152,12 +152,12 @@ export interface RootRouteChildren {
   AiToolsRoute: typeof AiToolsRoute
   AnalyticsRoute: typeof AnalyticsRoute
   BroadcastsRoute: typeof BroadcastsRoute
-  DashboardRoute: typeof DashboardRoute
   DestinationsRoute: typeof DestinationsRoute
   LibraryRoute: typeof LibraryRoute
   SettingsRoute: typeof SettingsRoute
   StudioRoute: typeof StudioRoute
   TeamRoute: typeof TeamRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,13 +197,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DestinationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/broadcasts': {
       id: '/broadcasts'
       path: '/broadcasts'
@@ -232,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -240,13 +240,23 @@ const rootRouteChildren: RootRouteChildren = {
   AiToolsRoute: AiToolsRoute,
   AnalyticsRoute: AnalyticsRoute,
   BroadcastsRoute: BroadcastsRoute,
-  DashboardRoute: DashboardRoute,
   DestinationsRoute: DestinationsRoute,
   LibraryRoute: LibraryRoute,
   SettingsRoute: SettingsRoute,
   StudioRoute: StudioRoute,
   TeamRoute: TeamRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
