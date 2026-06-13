@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -18,8 +18,11 @@ import {
   X,
   QrCode,
   MessageCircle,
+  LogOut,
 } from "lucide-react";
 import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean };
 const nav: NavItem[] = [
@@ -36,10 +39,12 @@ const nav: NavItem[] = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [showQR, setShowQR] = useState(false);
   const [contact, setContact] = useState(() => loadContact());
+  const [user, setUser] = useState<{ email?: string; displayName?: string } | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setYear(new Date().getFullYear()), 60 * 60 * 1000);
@@ -47,6 +52,33 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => onContactChange(setContact), []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setUser({
+          email: data.user.email,
+          displayName:
+            (data.user.user_metadata?.display_name as string | undefined) ??
+            (data.user.user_metadata?.full_name as string | undefined) ??
+            data.user.email?.split("@")[0],
+        });
+      }
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Sesión cerrada");
+    navigate({ to: "/auth", replace: true });
+  };
+
+  const initials = (user?.displayName ?? user?.email ?? "U")
+    .split(/\s+/)
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const waUrl = buildWhatsAppUrl(contact);
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(waUrl)}&bgcolor=0F172A&color=38BDF8&margin=10`;
@@ -161,12 +193,20 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
           <div className="flex items-center gap-3 pl-3 border-l border-border">
             <div className="text-right leading-tight">
-              <p className="text-sm font-semibold">Alex Rivera</p>
-              <p className="text-xs text-muted-foreground">Creador Pro</p>
+              <p className="text-sm font-semibold">{user?.displayName ?? "Invitado"}</p>
+              <p className="text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "—"}</p>
             </div>
             <div className="h-9 w-9 rounded-full gradient-primary-bg flex items-center justify-center text-sm font-bold text-primary-foreground">
-              AR
+              {initials}
             </div>
+            <button
+              onClick={handleSignOut}
+              aria-label="Cerrar sesión"
+              className="rounded-lg p-2 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              title="Cerrar sesión"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </header>
 

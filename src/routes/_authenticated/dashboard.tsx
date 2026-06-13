@@ -4,7 +4,7 @@ import { PageHeader, StatCard, StatusPill, Button } from "@/components/ui-bits";
 import { broadcasts, metrics } from "@/lib/mock-data";
 import { Plus, Play, Calendar, Sparkles, TrendingUp } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Panel — NovaStream AI" }] }),
   component: Dashboard,
 });

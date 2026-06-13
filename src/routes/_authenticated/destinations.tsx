@@ -4,7 +4,7 @@ import { PageHeader, Button } from "@/components/ui-bits";
 import { platforms } from "@/lib/mock-data";
 import { Plus, Check, Link as LinkIcon } from "lucide-react";
 
-export const Route = createFileRoute("/destinations")({
+export const Route = createFileRoute("/_authenticated/destinations")({
   head: () => ({ meta: [{ title: "Destinos — NovaStream AI" }] }),
   component: Destinations,
 });

@@ -7,7 +7,7 @@ import {
   Layout, Sparkles, Bot, Send, Image as ImageIcon, Type, Square,
 } from "lucide-react";
 
-export const Route = createFileRoute("/studio")({
+export const Route = createFileRoute("/_authenticated/studio")({
   head: () => ({ meta: [{ title: "Studio — NovaStream AI" }] }),
   component: Studio,
 });

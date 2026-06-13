@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui-bits";
 import { loadContact, saveContact, buildWhatsAppUrl } from "@/lib/contact-config";
 import { MessageCircle, QrCode, Check, AlertCircle, Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Ajustes — NovaStream AI" }] }),
   component: Settings,
 });

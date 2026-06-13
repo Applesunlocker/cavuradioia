@@ -4,7 +4,7 @@ import { PageHeader, StatCard } from "@/components/ui-bits";
 import { metrics } from "@/lib/mock-data";
 import { Sparkles, TrendingUp } from "lucide-react";
 
-export const Route = createFileRoute("/analytics")({
+export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({ meta: [{ title: "Analítica — NovaStream AI" }] }),
   component: Analytics,
 });
