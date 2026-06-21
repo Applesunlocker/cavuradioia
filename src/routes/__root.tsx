@@ -85,8 +85,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "NovaStream AI — Streaming en vivo reimaginado" },
       { name: "twitter:description", content: "Studio profesional de streaming en vivo con IA. Multistream, clips automáticos y emite como un pro." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b8d2e7d8-f1eb-4891-bd35-8bb60640d27f" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b8d2e7d8-f1eb-4891-bd35-8bb60640d27f" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d59c2bd-2944-4445-9156-63a7268199e6" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d59c2bd-2944-4445-9156-63a7268199e6" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
