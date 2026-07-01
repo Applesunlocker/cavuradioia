@@ -19,6 +19,7 @@ import {
   QrCode,
   MessageCircle,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +37,7 @@ const nav: NavItem[] = [
   { to: "/team", label: "Equipo", icon: Users },
   { to: "/settings", label: "Ajustes", icon: Settings },
 ];
+const adminItem: NavItem = { to: "/admin", label: "Admin", icon: Shield };
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -45,6 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [showQR, setShowQR] = useState(false);
   const [contact, setContact] = useState(() => loadContact());
   const [user, setUser] = useState<{ email?: string; displayName?: string } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setYear(new Date().getFullYear()), 60 * 60 * 1000);
@@ -54,16 +57,22 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => onContactChange(setContact), []);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setUser({
-          email: data.user.email,
-          displayName:
-            (data.user.user_metadata?.display_name as string | undefined) ??
-            (data.user.user_metadata?.full_name as string | undefined) ??
-            data.user.email?.split("@")[0],
-        });
-      }
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      setUser({
+        email: data.user.email,
+        displayName:
+          (data.user.user_metadata?.display_name as string | undefined) ??
+          (data.user.user_metadata?.full_name as string | undefined) ??
+          data.user.email?.split("@")[0],
+      });
+      const { data: role } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      setIsAdmin(!!role);
     });
   }, []);
 
