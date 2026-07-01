@@ -64,8 +64,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_admin_if_none: { Args: never; Returns: boolean }
       has_role: {
         Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      list_users_with_roles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          email: string
+          roles: string[]
+          user_id: string
+        }[]
+      }
+      set_user_role: {
+        Args: {
+          _grant: boolean
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
