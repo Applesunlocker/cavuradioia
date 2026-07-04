@@ -14,6 +14,187 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          broadcast_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          occurred_at: string
+          owner_id: string
+          platform: string | null
+          value: number
+        }
+        Insert: {
+          broadcast_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          owner_id: string
+          platform?: string | null
+          value?: number
+        }
+        Update: {
+          broadcast_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          owner_id?: string
+          platform?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcasts: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          engagement: number
+          host_name: string | null
+          id: string
+          owner_id: string
+          peak_viewers: number
+          platforms: string[]
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["broadcast_status"]
+          tags: string[]
+          thumbnail: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number
+          engagement?: number
+          host_name?: string | null
+          id?: string
+          owner_id: string
+          peak_viewers?: number
+          platforms?: string[]
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["broadcast_status"]
+          tags?: string[]
+          thumbnail?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          engagement?: number
+          host_name?: string | null
+          id?: string
+          owner_id?: string
+          peak_viewers?: number
+          platforms?: string[]
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["broadcast_status"]
+          tags?: string[]
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      destinations: {
+        Row: {
+          color: string | null
+          config: Json
+          connected: boolean
+          created_at: string
+          display_name: string
+          id: string
+          owner_id: string
+          platform: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          config?: Json
+          connected?: boolean
+          created_at?: string
+          display_name: string
+          id?: string
+          owner_id: string
+          platform: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          config?: Json
+          connected?: boolean
+          created_at?: string
+          display_name?: string
+          id?: string
+          owner_id?: string
+          platform?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      library_items: {
+        Row: {
+          broadcast_id: string | null
+          created_at: string
+          duration_seconds: number
+          id: string
+          item_type: string
+          owner_id: string
+          tags: string[]
+          thumbnail: string | null
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          broadcast_id?: string | null
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          item_type?: string
+          owner_id: string
+          tags?: string[]
+          thumbnail?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          broadcast_id?: string | null
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          item_type?: string
+          owner_id?: string
+          tags?: string[]
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_items_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -34,6 +215,42 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          invited_email: string | null
+          member_user_id: string | null
+          owner_id: string
+          role: Database["public"]["Enums"]["team_role"]
+          status: Database["public"]["Enums"]["team_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          invited_email?: string | null
+          member_user_id?: string | null
+          owner_id: string
+          role?: Database["public"]["Enums"]["team_role"]
+          status?: Database["public"]["Enums"]["team_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          invited_email?: string | null
+          member_user_id?: string | null
+          owner_id?: string
+          role?: Database["public"]["Enums"]["team_role"]
+          status?: Database["public"]["Enums"]["team_status"]
           updated_at?: string
         }
         Relationships: []
@@ -94,6 +311,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      broadcast_status: "live" | "scheduled" | "completed" | "draft"
+      team_role: "admin" | "host" | "producer" | "guest"
+      team_status: "pending" | "active" | "removed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -222,6 +442,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      broadcast_status: ["live", "scheduled", "completed", "draft"],
+      team_role: ["admin", "host", "producer", "guest"],
+      team_status: ["pending", "active", "removed"],
     },
   },
 } as const
