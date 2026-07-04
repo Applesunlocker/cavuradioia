@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, Button } from "@/components/ui-bits";
-import { platforms } from "@/lib/mock-data";
+import { platformCatalog } from "@/lib/mock-data";
+import { useDestinations, useUpsertDestination } from "@/lib/queries";
 import { Plus, Check, Link as LinkIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/destinations")({
   head: () => ({ meta: [{ title: "Destinos — NovaStream AI" }] }),
@@ -10,6 +12,20 @@ export const Route = createFileRoute("/_authenticated/destinations")({
 });
 
 function Destinations() {
+  const { data: destinations, isLoading } = useDestinations();
+  const upsert = useUpsertDestination();
+
+  const toggle = async (platform: string, name: string, color: string, connected: boolean) => {
+    try {
+      await upsert.mutateAsync({ platform, display_name: name, color, connected: !connected });
+      toast.success(connected ? "Desconectado" : "Conectado");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    }
+  };
+
+  const isConnected = (id: string) => destinations?.find((d) => d.platform === id)?.connected ?? false;
+
   return (
     <AppShell>
       <PageHeader
@@ -18,33 +34,41 @@ function Destinations() {
         action={<Button><Plus className="h-4 w-4" /> Añadir RTMP personalizado</Button>}
       />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {platforms.map((p) => (
-          <div key={p.id} className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors">
-            <div
-              className="h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0"
-              style={{ background: p.color }}
-            >
-              {p.name[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold">{p.name}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {p.connected ? "Conectado · streaming activo" : "No conectado"}
-              </p>
-            </div>
-            {p.connected ? (
-              <span className="rounded-full bg-neon/15 text-neon px-3 py-1 text-xs font-bold flex items-center gap-1">
-                <Check className="h-3 w-3" /> ON
-              </span>
-            ) : (
-              <button className="rounded-lg bg-secondary/60 hover:bg-accent px-3 py-1.5 text-xs font-semibold flex items-center gap-1">
-                <LinkIcon className="h-3 w-3" /> Conectar
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+      {isLoading ? (
+        <p className="text-muted-foreground text-sm">Cargando…</p>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {platformCatalog.map((p) => {
+            const connected = isConnected(p.id);
+            return (
+              <div key={p.id} className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors">
+                <div className="h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0" style={{ background: p.color }}>
+                  {p.name[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold">{p.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{connected ? "Conectado · streaming activo" : "No conectado"}</p>
+                </div>
+                {connected ? (
+                  <button
+                    onClick={() => toggle(p.id, p.name, p.color, true)}
+                    className="rounded-full bg-neon/15 text-neon px-3 py-1 text-xs font-bold flex items-center gap-1 hover:bg-neon/25"
+                  >
+                    <Check className="h-3 w-3" /> ON
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => toggle(p.id, p.name, p.color, false)}
+                    className="rounded-lg bg-secondary/60 hover:bg-accent px-3 py-1.5 text-xs font-semibold flex items-center gap-1"
+                  >
+                    <LinkIcon className="h-3 w-3" /> Conectar
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-10 glass-strong rounded-2xl p-6">
         <h2 className="text-xl font-semibold">Perfiles de emisión</h2>
