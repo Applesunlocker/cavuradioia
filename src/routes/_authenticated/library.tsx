@@ -1,13 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, Button } from "@/components/ui-bits";
 import { useLibraryItems, useCreateLibraryItem, useBroadcasts, formatDuration } from "@/lib/queries";
-import { Sparkles, Play, Download, Scissors, Plus } from "lucide-react";
+import { semanticLibrarySearch } from "@/lib/ai.functions";
+import { Sparkles, Play, Download, Scissors, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/library")({
-  head: () => ({ meta: [{ title: "Librería — NovaStream AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Librería — NovaStream AI" },
+      { name: "description", content: "Busca tus grabaciones y clips con búsqueda semántica impulsada por IA." },
+    ],
+  }),
   component: LibraryPage,
 });
 
@@ -15,10 +22,15 @@ function LibraryPage() {
   const { data: items, isLoading } = useLibraryItems();
   const { data: broadcasts } = useBroadcasts();
   const create = useCreateLibraryItem();
+  const runSemantic = useServerFn(semanticLibrarySearch);
   const [query, setQuery] = useState("");
-  const [search, setSearch] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [result, setResult] = useState<{ intent: string; summary: string; ids: string[] } | null>(null);
 
-  const filtered = (items ?? []).filter((v) => !search || v.title.toLowerCase().includes(search.toLowerCase()));
+  const all = items ?? [];
+  const filtered = result
+    ? result.ids.map((id) => all.find((i) => i.id === id)).filter((v): v is (typeof all)[number] => Boolean(v))
+    : all;
 
   const handleCreate = async () => {
     const title = prompt("Título del clip / grabación:");
@@ -29,17 +41,28 @@ function LibraryPage() {
     } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Error"); }
   };
 
-  const runSearch = () => {
-    if (!query.trim()) return;
-    setSearch(query.trim());
-    toast.info("Búsqueda por texto. La búsqueda semántica con IA llega en la Fase 4.");
+  const runSearch = async () => {
+    const q = query.trim();
+    if (!q) return;
+    setSearching(true);
+    setResult(null);
+    try {
+      const res = await runSemantic({
+        data: { query: q, items: all.slice(0, 60).map((i) => ({ id: i.id, title: i.title, item_type: i.item_type })) },
+      });
+      setResult(res);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "No se pudo completar la búsqueda semántica.");
+    } finally {
+      setSearching(false);
+    }
   };
 
   return (
     <AppShell>
       <PageHeader
         title="Librería"
-        description="Todas tus transmisiones, clips y recursos — buscables por texto (semántica con IA en Fase 4)."
+        description="Todas tus transmisiones, clips y recursos — con búsqueda semántica por IA."
         action={<Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir item</Button>}
       />
 
@@ -49,14 +72,23 @@ function LibraryPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && runSearch()}
-            placeholder="Buscar en tu librería..."
+            onKeyDown={(e) => e.key === "Enter" && !searching && runSearch()}
+            placeholder="Describe lo que buscas: «el momento donde hablamos de precios»"
             className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground"
           />
-          <Button variant="neon" className="!py-2 !text-xs" onClick={runSearch}>Buscar</Button>
+          <Button variant="neon" className="!py-2 !text-xs" onClick={runSearch} disabled={searching}>
+            {searching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} {searching ? "Buscando…" : "Buscar"}
+          </Button>
         </div>
-        {search && <p className="mt-3 text-xs text-muted-foreground">Filtrando por «{search}» — <button className="underline" onClick={() => { setSearch(""); setQuery(""); }}>limpiar</button></p>}
+        {result && (
+          <div className="mt-3 space-y-1 text-xs">
+            <p className="text-neon">Intención detectada: {result.intent}</p>
+            <p className="text-muted-foreground">{result.summary}</p>
+            <button className="underline text-muted-foreground" onClick={() => { setResult(null); setQuery(""); }}>limpiar búsqueda</button>
+          </div>
+        )}
       </div>
+
 
       {isLoading ? (
         <p className="text-muted-foreground text-sm">Cargando…</p>
