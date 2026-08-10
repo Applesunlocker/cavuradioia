@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, Button } from "@/components/ui-bits";
-import { useLibraryItems, useCreateLibraryItem, useBroadcasts, formatDuration } from "@/lib/queries";
+import { useLibraryItems, useCreateLibraryItem, useBroadcasts, formatDuration, type LibraryItem } from "@/lib/queries";
 import { semanticLibrarySearch } from "@/lib/ai.functions";
-import { Sparkles, Play, Download, Scissors, Plus, Loader2 } from "lucide-react";
+import { uploadMedia, useMediaUrl } from "@/lib/storage";
+import { Sparkles, Play, Download, Scissors, Plus, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({
@@ -32,14 +34,37 @@ function LibraryPage() {
     ? result.ids.map((id) => all.find((i) => i.id === id)).filter((v): v is (typeof all)[number] => Boolean(v))
     : all;
 
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const handleCreate = async () => {
-    const title = prompt("Título del clip / grabación:");
+    const title = window.prompt("Título del clip / grabación:");
     if (!title?.trim()) return;
     try {
       await create.mutateAsync({ title: title.trim(), item_type: "clip" });
       toast.success("Añadido a la librería");
     } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Error"); }
   };
+
+  const handleUpload = async (file: File) => {
+    if (file.size > 200 * 1024 * 1024) return toast.error("El archivo debe pesar menos de 200 MB.");
+    const isImage = file.type.startsWith("image/");
+    setUploading(true);
+    try {
+      const path = await uploadMedia(file, isImage ? "thumbnails" : "clips");
+      await create.mutateAsync({
+        title: file.name.replace(/\.[^.]+$/, ""),
+        item_type: isImage ? "imagen" : "grabación",
+        ...(isImage ? { thumbnail: path } : { url: path }),
+      });
+      toast.success("Archivo subido a tu librería privada");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "No se pudo subir el archivo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   const runSearch = async () => {
     const q = query.trim();
@@ -63,7 +88,23 @@ function LibraryPage() {
       <PageHeader
         title="Librería"
         description="Todas tus transmisiones, clips y recursos — con búsqueda semántica por IA."
-        action={<Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir item</Button>}
+        action={
+          <div className="flex gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="video/*,image/*,audio/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
+            />
+            <Button variant="neon" onClick={() => fileRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {uploading ? "Subiendo…" : "Subir archivo"}
+            </Button>
+            <Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir item</Button>
+          </div>
+        }
+
       />
 
       <div className="glass-strong rounded-2xl p-4 mb-8 border border-neon/30">
@@ -100,31 +141,53 @@ function LibraryPage() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((v) => {
-            const parent = broadcasts?.find((b) => b.id === v.broadcast_id);
-            return (
-              <div key={v.id} className="glass rounded-2xl overflow-hidden group">
-                <div className="aspect-video relative" style={{ background: v.thumbnail ?? "linear-gradient(135deg, oklch(0.5 0.2 260), oklch(0.3 0.18 305))" }}>
-                  <button className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="h-14 w-14 rounded-full gradient-primary-bg flex items-center justify-center glow">
-                      <Play className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                  </button>
-                  <div className="absolute bottom-2 right-2 rounded bg-background/80 px-2 py-0.5 text-xs">{formatDuration(v.duration_seconds)}</div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold line-clamp-1">{v.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{v.item_type}{parent ? ` · de ${parent.title}` : ""}</p>
-                  <div className="mt-3 flex gap-2">
-                    <button className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent"><Scissors className="h-3 w-3" /> Clips IA</button>
-                    {v.url && <a href={v.url} target="_blank" rel="noopener noreferrer" className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent"><Download className="h-3 w-3" /> Descargar</a>}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {filtered.map((v) => (
+            <LibraryCard key={v.id} item={v} parentTitle={broadcasts?.find((b) => b.id === v.broadcast_id)?.title} />
+          ))}
         </div>
+
       )}
     </AppShell>
   );
 }
+
+function LibraryCard({ item, parentTitle }: { item: LibraryItem; parentTitle?: string }) {
+  const { data: thumbUrl } = useMediaUrl(item.thumbnail);
+  const { data: fileUrl } = useMediaUrl(item.url);
+  const href = fileUrl ?? (item.url && /^https?:/.test(item.url) ? item.url : null);
+
+  return (
+    <div className="glass rounded-2xl overflow-hidden group">
+      <div
+        className="aspect-video relative"
+        style={
+          thumbUrl
+            ? { backgroundImage: `url(${thumbUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: "linear-gradient(135deg, oklch(0.5 0.2 260), oklch(0.3 0.18 305))" }
+        }
+      >
+        {href && (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="h-14 w-14 rounded-full gradient-primary-bg flex items-center justify-center glow">
+              <Play className="h-5 w-5 text-primary-foreground" />
+            </div>
+          </a>
+        )}
+        <div className="absolute bottom-2 right-2 rounded bg-background/80 px-2 py-0.5 text-xs">{formatDuration(item.duration_seconds)}</div>
+      </div>
+      <div className="p-4">
+        <h3 className="font-semibold line-clamp-1">{item.title}</h3>
+        <p className="text-xs text-muted-foreground mt-1">{item.item_type}{parentTitle ? ` · de ${parentTitle}` : ""}</p>
+        <div className="mt-3 flex gap-2">
+          <button className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent"><Scissors className="h-3 w-3" /> Clips IA</button>
+          {href && (
+            <a href={href} target="_blank" rel="noopener noreferrer" className="text-xs rounded-md bg-secondary/60 px-2 py-1 flex items-center gap-1 hover:bg-accent">
+              <Download className="h-3 w-3" /> Descargar
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

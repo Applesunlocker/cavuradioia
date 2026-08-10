@@ -4,8 +4,10 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui-bits";
+import { ProfileCard } from "@/components/ProfileCard";
 import { loadContact, saveContact, buildWhatsAppUrl } from "@/lib/contact-config";
 import { MessageCircle, QrCode, Check, AlertCircle, Loader2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Ajustes — NovaStream AI" }] }),
@@ -151,7 +153,11 @@ function Settings() {
           ))}
         </nav>
 
-        <div className="glass rounded-2xl p-6 lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-6">
+        <ProfileCard />
+
+        <div className="glass rounded-2xl p-6 space-y-5">
+
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-neon" /> Contacto por WhatsApp
@@ -271,7 +277,9 @@ function Settings() {
             </button>
           </div>
         </div>
+        </div>
       </div>
+
     </AppShell>
   );
 }
