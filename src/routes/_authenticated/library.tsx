@@ -34,14 +34,37 @@ function LibraryPage() {
     ? result.ids.map((id) => all.find((i) => i.id === id)).filter((v): v is (typeof all)[number] => Boolean(v))
     : all;
 
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const handleCreate = async () => {
-    const title = prompt("Título del clip / grabación:");
+    const title = window.prompt("Título del clip / grabación:");
     if (!title?.trim()) return;
     try {
       await create.mutateAsync({ title: title.trim(), item_type: "clip" });
       toast.success("Añadido a la librería");
     } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Error"); }
   };
+
+  const handleUpload = async (file: File) => {
+    if (file.size > 200 * 1024 * 1024) return toast.error("El archivo debe pesar menos de 200 MB.");
+    const isImage = file.type.startsWith("image/");
+    setUploading(true);
+    try {
+      const path = await uploadMedia(file, isImage ? "thumbnails" : "clips");
+      await create.mutateAsync({
+        title: file.name.replace(/\.[^.]+$/, ""),
+        item_type: isImage ? "imagen" : "grabación",
+        ...(isImage ? { thumbnail: path } : { url: path }),
+      });
+      toast.success("Archivo subido a tu librería privada");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "No se pudo subir el archivo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   const runSearch = async () => {
     const q = query.trim();
