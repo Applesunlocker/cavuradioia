@@ -94,8 +94,9 @@ function LibraryPage() {
         <p className="text-muted-foreground text-sm">Cargando…</p>
       ) : filtered.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center">
-          <p className="text-muted-foreground mb-4">Tu librería está vacía{search ? " para esa búsqueda" : ""}.</p>
-          {!search && <Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir el primer clip</Button>}
+          <p className="text-muted-foreground mb-4">Tu librería está vacía{result ? " para esa búsqueda" : ""}.</p>
+          {!result && <Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir el primer clip</Button>}
+
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
