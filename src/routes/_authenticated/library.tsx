@@ -88,7 +88,23 @@ function LibraryPage() {
       <PageHeader
         title="Librería"
         description="Todas tus transmisiones, clips y recursos — con búsqueda semántica por IA."
-        action={<Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir item</Button>}
+        action={
+          <div className="flex gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="video/*,image/*,audio/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
+            />
+            <Button variant="neon" onClick={() => fileRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {uploading ? "Subiendo…" : "Subir archivo"}
+            </Button>
+            <Button onClick={handleCreate}><Plus className="h-4 w-4" /> Añadir item</Button>
+          </div>
+        }
+
       />
 
       <div className="glass-strong rounded-2xl p-4 mb-8 border border-neon/30">
