@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /studio
+Disallow: /broadcasts
+Disallow: /library
+Disallow: /destinations
+Disallow: /ai-tools
+Disallow: /analytics
+Disallow: /team
+Disallow: /settings
+Disallow: /admin
+
+Sitemap: https://cavuradioia.lovable.app/sitemap.xml
