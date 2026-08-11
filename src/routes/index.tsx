@@ -6,10 +6,34 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "NovaStream AI — Streaming en vivo potenciado por IA" },
       { name: "description", content: "Transmite shows profesionales a todas las plataformas con un co-host de IA que clipea, subtitula y hace crecer tu audiencia." },
+      { property: "og:title", content: "NovaStream AI — Streaming en vivo potenciado por IA" },
+      { property: "og:description", content: "Multistream, clips automáticos y analíticas predictivas en un studio de navegador." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cavuradioia.lovable.app/" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://cavuradioia.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "NovaStream AI",
+          applicationCategory: "MultimediaApplication",
+          operatingSystem: "Web",
+          inLanguage: "es",
+          url: "https://cavuradioia.lovable.app/",
+          description:
+            "Studio de streaming en vivo con IA: multistream, clips automáticos y analíticas predictivas.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        }),
+      },
     ],
   }),
   component: Landing,
 });
+
 
 function Landing() {
   return (
