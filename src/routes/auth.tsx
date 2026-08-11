@@ -7,7 +7,19 @@ import { Mic, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Acceder — NovaStream AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Acceder o crear cuenta — NovaStream AI" },
+      { name: "description", content: "Entra a tu Studio de NovaStream AI o crea una cuenta gratis para empezar a transmitir con IA." },
+      { property: "og:title", content: "Acceder o crear cuenta — NovaStream AI" },
+      { property: "og:description", content: "Accede a tu Studio de streaming con IA en segundos." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cavuradioia.lovable.app/auth" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://cavuradioia.lovable.app/auth" }],
+  }),
+
   component: AuthPage,
 });
 
