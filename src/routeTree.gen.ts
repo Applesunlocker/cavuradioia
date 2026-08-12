@@ -17,6 +17,7 @@ import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
+import { Route as AuthenticatedEmailDomainRouteImport } from './routes/_authenticated/email-domain'
 import { Route as AuthenticatedDestinationsRouteImport } from './routes/_authenticated/destinations'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
@@ -63,6 +64,12 @@ const AuthenticatedLibraryRoute = AuthenticatedLibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEmailDomainRoute =
+  AuthenticatedEmailDomainRouteImport.update({
+    id: '/email-domain',
+    path: '/email-domain',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDestinationsRoute =
   AuthenticatedDestinationsRouteImport.update({
     id: '/destinations',
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/broadcasts': typeof AuthenticatedBroadcastsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/destinations': typeof AuthenticatedDestinationsRoute
+  '/email-domain': typeof AuthenticatedEmailDomainRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -120,6 +128,7 @@ export interface FileRoutesByTo {
   '/broadcasts': typeof AuthenticatedBroadcastsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/destinations': typeof AuthenticatedDestinationsRoute
+  '/email-domain': typeof AuthenticatedEmailDomainRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -137,6 +146,7 @@ export interface FileRoutesById {
   '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/destinations': typeof AuthenticatedDestinationsRoute
+  '/_authenticated/email-domain': typeof AuthenticatedEmailDomainRoute
   '/_authenticated/library': typeof AuthenticatedLibraryRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/broadcasts'
     | '/dashboard'
     | '/destinations'
+    | '/email-domain'
     | '/library'
     | '/settings'
     | '/studio'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/broadcasts'
     | '/dashboard'
     | '/destinations'
+    | '/email-domain'
     | '/library'
     | '/settings'
     | '/studio'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
     | '/_authenticated/broadcasts'
     | '/_authenticated/dashboard'
     | '/_authenticated/destinations'
+    | '/_authenticated/email-domain'
     | '/_authenticated/library'
     | '/_authenticated/settings'
     | '/_authenticated/studio'
@@ -256,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibraryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/email-domain': {
+      id: '/_authenticated/email-domain'
+      path: '/email-domain'
+      fullPath: '/email-domain'
+      preLoaderRoute: typeof AuthenticatedEmailDomainRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/destinations': {
       id: '/_authenticated/destinations'
       path: '/destinations'
@@ -308,6 +328,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDestinationsRoute: typeof AuthenticatedDestinationsRoute
+  AuthenticatedEmailDomainRoute: typeof AuthenticatedEmailDomainRoute
   AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
@@ -321,6 +342,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDestinationsRoute: AuthenticatedDestinationsRoute,
+  AuthenticatedEmailDomainRoute: AuthenticatedEmailDomainRoute,
   AuthenticatedLibraryRoute: AuthenticatedLibraryRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
