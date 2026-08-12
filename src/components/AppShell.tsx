@@ -20,6 +20,7 @@ import {
   MessageCircle,
   LogOut,
   Shield,
+  MailCheck,
 } from "lucide-react";
 import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +38,10 @@ const nav: NavItem[] = [
   { to: "/team", label: "Equipo", icon: Users },
   { to: "/settings", label: "Ajustes", icon: Settings },
 ];
-const adminItem: NavItem = { to: "/admin", label: "Admin", icon: Shield };
+const adminItems: NavItem[] = [
+  { to: "/admin", label: "Admin", icon: Shield },
+  { to: "/email-domain", label: "Dominio correo", icon: MailCheck },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });

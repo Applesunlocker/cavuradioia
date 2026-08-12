@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/email-domain")({
       },
     ],
   }),
-  component: EmailDomainPanel;
+  component: EmailDomainPanel,
 });
 
 const statusStyles = {
