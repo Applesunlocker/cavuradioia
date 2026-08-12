@@ -141,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="mt-6 flex-1 overflow-y-auto px-3 space-y-0.5">
-          {[...nav, ...(isAdmin ? [adminItem] : [])].map((item) => {
+          {[...nav, ...(isAdmin ? adminItems : [])].map((item) => {
             const active = path === item.to || path.startsWith(item.to + "/");
             const Icon = item.icon;
             return (
