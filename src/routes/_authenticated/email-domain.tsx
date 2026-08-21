@@ -44,7 +44,15 @@ const ACTION_LABELS: Record<string, string> = {
   cambio_dominio: "Cambio de dominio",
   actualizacion_configuracion: "Actualización de configuración",
   verificacion_dns: "Verificación DNS",
+  alerta_estado: "Alerta: cambio de estado",
+  fallo_verificacion: "Alerta: fallo de verificación",
 };
+
+const alertStyles = {
+  error: "border-destructive/40 bg-destructive/10 text-destructive",
+  warning: "border-primary/40 bg-primary/10 text-primary",
+  ok: "border-neon/40 bg-neon/10 text-neon",
+} as const;
 
 function EmailDomainPanel() {
   const [cfg, setCfg] = useState<EmailDomainConfig>(() => loadEmailDomain());
@@ -66,21 +74,70 @@ function EmailDomainPanel() {
   const check = useServerFn(checkSenderDomain);
   const audit = useEmailDomainAudit();
   const logAudit = useLogEmailDomainAudit();
+  const [alerts, setAlerts] = useState<{ id: string; level: "error" | "warning" | "ok"; message: string }[]>([]);
+
+  const previousStatuses = useMemo(() => {
+    const d = normalizeDomain(domain);
+    const row = (audit.data ?? []).find(
+      (r) => r.action === "verificacion_dns" && r.domain === d && Object.keys((r.statuses ?? {}) as object).length > 0,
+    );
+    return (row?.statuses ?? null) as Record<string, string> | null;
+  }, [audit.data, domain]);
 
   const inspection = useMutation({
     mutationFn: (input: { domain: string; expectedNs: string[] }) => check({ data: input }),
     onSuccess: (res, vars) => {
+      const statuses = Object.fromEntries(res.checks.map((c) => [c.id, c.status]));
+      const changes: string[] = [];
+      const next: { id: string; level: "error" | "warning" | "ok"; message: string }[] = [];
+
+      for (const c of res.checks) {
+        const before = previousStatuses?.[c.id];
+        if (before && before !== c.status) {
+          const msg = `${c.label}: ${statusLabels[before as keyof typeof statusLabels] ?? before} → ${statusLabels[c.status]}`;
+          changes.push(msg);
+          next.push({ id: `chg-${c.id}`, level: c.status === "ok" ? "ok" : c.status === "warning" ? "warning" : "error", message: msg });
+        }
+      }
+      for (const c of res.checks) {
+        if (c.status === "missing") {
+          next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+        }
+      }
+
+      setAlerts(next);
+      if (next.some((a) => a.level === "error")) {
+        toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
+      } else if (changes.length) {
+        toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+      }
+
       logAudit.mutate({
-        action: "verificacion_dns",
+        action: changes.length ? "alerta_estado" : "verificacion_dns",
         domain: vars.domain,
         dns_provider: provider,
         ns_records: vars.expectedNs,
         score: res.score,
-        statuses: Object.fromEntries(res.checks.map((c) => [c.id, c.status])),
-        notes: `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
+        statuses,
+        notes: changes.length
+          ? `Cambios detectados — ${changes.join(" · ")}`
+          : `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
       });
     },
-    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "No se pudo verificar el DNS"),
+    onError: (e: unknown) => {
+      const message = e instanceof Error ? e.message : "No se pudo verificar el DNS";
+      toast.error(message);
+      setAlerts([{ id: "verify-error", level: "error", message: `Fallo la verificación DNS: ${message}` }]);
+      if (isValidDomain(domain)) {
+        logAudit.mutate({
+          action: "fallo_verificacion",
+          domain: normalizeDomain(domain),
+          dns_provider: provider,
+          ns_records: nsList,
+          notes: `Fallo la verificación DNS: ${message}`,
+        });
+      }
+    },
   });
 
   const save = () => {
@@ -128,6 +185,28 @@ function EmailDomainPanel() {
           </Button>
         }
       />
+
+      {alerts.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {alerts.map((a) => (
+            <div key={a.id} className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm ${alertStyles[a.level]}`}>
+              {a.level === "ok" ? (
+                <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+              ) : a.level === "warning" ? (
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              ) : (
+                <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              )}
+              <span>{a.message}</span>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            Estas alertas también quedan guardadas en el historial de auditoría. El aviso por correo se activará automáticamente
+            en cuanto el dominio de remitente esté verificado.
+          </p>
+        </div>
+      )}
+
 
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="glass rounded-2xl p-6 space-y-5">
