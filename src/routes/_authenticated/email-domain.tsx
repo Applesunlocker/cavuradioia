@@ -66,21 +66,70 @@ function EmailDomainPanel() {
   const check = useServerFn(checkSenderDomain);
   const audit = useEmailDomainAudit();
   const logAudit = useLogEmailDomainAudit();
+  const [alerts, setAlerts] = useState<{ id: string; level: "error" | "warning" | "ok"; message: string }[]>([]);
+
+  const previousStatuses = useMemo(() => {
+    const d = normalizeDomain(domain);
+    const row = (audit.data ?? []).find(
+      (r) => r.action === "verificacion_dns" && r.domain === d && Object.keys((r.statuses ?? {}) as object).length > 0,
+    );
+    return (row?.statuses ?? null) as Record<string, string> | null;
+  }, [audit.data, domain]);
 
   const inspection = useMutation({
     mutationFn: (input: { domain: string; expectedNs: string[] }) => check({ data: input }),
     onSuccess: (res, vars) => {
+      const statuses = Object.fromEntries(res.checks.map((c) => [c.id, c.status]));
+      const changes: string[] = [];
+      const next: { id: string; level: "error" | "warning" | "ok"; message: string }[] = [];
+
+      for (const c of res.checks) {
+        const before = previousStatuses?.[c.id];
+        if (before && before !== c.status) {
+          const msg = `${c.label}: ${statusLabels[before as keyof typeof statusLabels] ?? before} → ${statusLabels[c.status]}`;
+          changes.push(msg);
+          next.push({ id: `chg-${c.id}`, level: c.status === "ok" ? "ok" : c.status === "warning" ? "warning" : "error", message: msg });
+        }
+      }
+      for (const c of res.checks) {
+        if (c.status === "missing") {
+          next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+        }
+      }
+
+      setAlerts(next);
+      if (next.some((a) => a.level === "error")) {
+        toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
+      } else if (changes.length) {
+        toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+      }
+
       logAudit.mutate({
-        action: "verificacion_dns",
+        action: changes.length ? "alerta_estado" : "verificacion_dns",
         domain: vars.domain,
         dns_provider: provider,
         ns_records: vars.expectedNs,
         score: res.score,
-        statuses: Object.fromEntries(res.checks.map((c) => [c.id, c.status])),
-        notes: `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
+        statuses,
+        notes: changes.length
+          ? `Cambios detectados — ${changes.join(" · ")}`
+          : `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
       });
     },
-    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "No se pudo verificar el DNS"),
+    onError: (e: unknown) => {
+      const message = e instanceof Error ? e.message : "No se pudo verificar el DNS";
+      toast.error(message);
+      setAlerts([{ id: "verify-error", level: "error", message: `Fallo la verificación DNS: ${message}` }]);
+      if (isValidDomain(domain)) {
+        logAudit.mutate({
+          action: "fallo_verificacion",
+          domain: normalizeDomain(domain),
+          dns_provider: provider,
+          ns_records: nsList,
+          notes: `Fallo la verificación DNS: ${message}`,
+        });
+      }
+    },
   });
 
   const save = () => {
