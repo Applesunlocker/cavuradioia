@@ -13,7 +13,8 @@ import {
   parseNsList,
   type EmailDomainConfig,
 } from "@/lib/email-domain-config";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy } from "lucide-react";
+import { useEmailDomainAudit, useLogEmailDomainAudit } from "@/lib/queries";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/email-domain")({
@@ -39,6 +40,12 @@ const statusStyles = {
 const statusLabels = { ok: "Correcto", warning: "Revisar", missing: "Falta" } as const;
 const StatusIcon = { ok: CheckCircle2, warning: AlertTriangle, missing: XCircle };
 
+const ACTION_LABELS: Record<string, string> = {
+  cambio_dominio: "Cambio de dominio",
+  actualizacion_configuracion: "Actualización de configuración",
+  verificacion_dns: "Verificación DNS",
+};
+
 function EmailDomainPanel() {
   const [cfg, setCfg] = useState<EmailDomainConfig>(() => loadEmailDomain());
   const [domain, setDomain] = useState("");
@@ -57,8 +64,22 @@ function EmailDomainPanel() {
   const domainError = domain.length > 0 && !isValidDomain(domain) ? "Formato de dominio inválido (ej. notify.midominio.com)" : null;
 
   const check = useServerFn(checkSenderDomain);
+  const audit = useEmailDomainAudit();
+  const logAudit = useLogEmailDomainAudit();
+
   const inspection = useMutation({
     mutationFn: (input: { domain: string; expectedNs: string[] }) => check({ data: input }),
+    onSuccess: (res, vars) => {
+      logAudit.mutate({
+        action: "verificacion_dns",
+        domain: vars.domain,
+        dns_provider: provider,
+        ns_records: vars.expectedNs,
+        score: res.score,
+        statuses: Object.fromEntries(res.checks.map((c) => [c.id, c.status])),
+        notes: `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
+      });
+    },
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "No se pudo verificar el DNS"),
   });
 
@@ -67,10 +88,21 @@ function EmailDomainPanel() {
       toast.error("Introduce un dominio válido antes de guardar");
       return;
     }
+    const previous = cfg.senderDomain;
     const saved = saveEmailDomain({ senderDomain: normalizeDomain(domain), nsRecords: nsList, dnsProvider: provider });
     setCfg(saved);
     setNsRaw(saved.nsRecords.join("\n"));
     toast.success("Configuración de dominio guardada");
+    logAudit.mutate({
+      action: previous && previous !== saved.senderDomain ? "cambio_dominio" : "actualizacion_configuracion",
+      domain: saved.senderDomain,
+      dns_provider: saved.dnsProvider,
+      ns_records: saved.nsRecords,
+      notes:
+        previous && previous !== saved.senderDomain
+          ? `Dominio cambiado de ${previous} a ${saved.senderDomain}`
+          : `Registros NS/proveedor actualizados (${saved.nsRecords.length} NS)`,
+    });
     inspection.mutate({ domain: saved.senderDomain, expectedNs: saved.nsRecords });
   };
 
@@ -231,6 +263,58 @@ function EmailDomainPanel() {
               </>
             )}
           </div>
+
+          <div className="glass rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <History className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold">Historial de auditoría</h2>
+            </div>
+
+            {audit.isLoading && <p className="text-sm text-muted-foreground">Cargando historial…</p>}
+            {audit.data?.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Aún no hay cambios registrados. Cada vez que guardes el dominio o verifiques los registros DNS se anotará quién lo
+                hizo y cuándo.
+              </p>
+            )}
+
+            <ul className="space-y-3">
+              {(audit.data ?? []).map((row) => (
+                <li key={row.id} className="rounded-xl border border-border bg-card/30 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-primary/30 bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      {ACTION_LABELS[row.action] ?? row.action}
+                    </span>
+                    <p className="text-sm font-semibold">{row.domain}</p>
+                    {typeof row.score === "number" && (
+                      <span className="text-xs text-muted-foreground">Salud {row.score}%</span>
+                    )}
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {row.actor_email ?? "Usuario"} · {new Date(row.created_at).toLocaleString("es-ES")}
+                    {row.dns_provider ? ` · DNS: ${row.dns_provider}` : ""}
+                  </p>
+                  {row.notes && <p className="mt-2 text-sm text-muted-foreground">{row.notes}</p>}
+                  {Object.keys((row.statuses ?? {}) as Record<string, string>).length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {Object.entries(row.statuses as Record<string, string>).map(([k, v]) => (
+                        <span
+                          key={k}
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyles[v as keyof typeof statusStyles] ?? ""}`}
+                        >
+                          {k}: {statusLabels[v as keyof typeof statusLabels] ?? v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {row.ns_records.length > 0 && (
+                    <p className="mt-2 text-xs font-mono break-all text-foreground/70">{row.ns_records.join(" · ")}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
 
           <div className="glass rounded-2xl p-6">
             <h2 className="font-semibold mb-3">Cambiar de proveedor DNS sin cortar el envío</h2>
