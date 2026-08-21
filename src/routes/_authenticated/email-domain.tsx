@@ -13,7 +13,8 @@ import {
   parseNsList,
   type EmailDomainConfig,
 } from "@/lib/email-domain-config";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy } from "lucide-react";
+import { useEmailDomainAudit, useLogEmailDomainAudit } from "@/lib/queries";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/email-domain")({
