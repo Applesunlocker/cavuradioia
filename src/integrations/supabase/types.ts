@@ -145,6 +145,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_domain_audit: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string
+          created_at: string
+          dns_provider: string | null
+          domain: string
+          id: string
+          notes: string | null
+          ns_records: string[]
+          score: number | null
+          statuses: Json
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id: string
+          created_at?: string
+          dns_provider?: string | null
+          domain: string
+          id?: string
+          notes?: string | null
+          ns_records?: string[]
+          score?: number | null
+          statuses?: Json
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string
+          created_at?: string
+          dns_provider?: string | null
+          domain?: string
+          id?: string
+          notes?: string | null
+          ns_records?: string[]
+          score?: number | null
+          statuses?: Json
+        }
+        Relationships: []
+      }
       library_items: {
         Row: {
           broadcast_id: string | null
