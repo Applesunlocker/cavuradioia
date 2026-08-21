@@ -259,6 +259,58 @@ function EmailDomainPanel() {
           </div>
 
           <div className="glass rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <History className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold">Historial de auditoría</h2>
+            </div>
+
+            {audit.isLoading && <p className="text-sm text-muted-foreground">Cargando historial…</p>}
+            {audit.data?.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Aún no hay cambios registrados. Cada vez que guardes el dominio o verifiques los registros DNS se anotará quién lo
+                hizo y cuándo.
+              </p>
+            )}
+
+            <ul className="space-y-3">
+              {(audit.data ?? []).map((row) => (
+                <li key={row.id} className="rounded-xl border border-border bg-card/30 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-primary/30 bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      {ACTION_LABELS[row.action] ?? row.action}
+                    </span>
+                    <p className="text-sm font-semibold">{row.domain}</p>
+                    {typeof row.score === "number" && (
+                      <span className="text-xs text-muted-foreground">Salud {row.score}%</span>
+                    )}
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {row.actor_email ?? "Usuario"} · {new Date(row.created_at).toLocaleString("es-ES")}
+                    {row.dns_provider ? ` · DNS: ${row.dns_provider}` : ""}
+                  </p>
+                  {row.notes && <p className="mt-2 text-sm text-muted-foreground">{row.notes}</p>}
+                  {Object.keys((row.statuses ?? {}) as Record<string, string>).length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {Object.entries(row.statuses as Record<string, string>).map(([k, v]) => (
+                        <span
+                          key={k}
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyles[v as keyof typeof statusStyles] ?? ""}`}
+                        >
+                          {k}: {statusLabels[v as keyof typeof statusLabels] ?? v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {row.ns_records.length > 0 && (
+                    <p className="mt-2 text-xs font-mono break-all text-foreground/70">{row.ns_records.join(" · ")}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+
+          <div className="glass rounded-2xl p-6">
             <h2 className="font-semibold mb-3">Cambiar de proveedor DNS sin cortar el envío</h2>
             <ol className="space-y-2 text-sm text-muted-foreground list-decimal pl-5">
               <li>Crea el subdominio de envío en el nuevo proveedor antes de mover nada.</li>
