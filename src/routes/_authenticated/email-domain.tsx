@@ -186,6 +186,28 @@ function EmailDomainPanel() {
         }
       />
 
+      {alerts.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {alerts.map((a) => (
+            <div key={a.id} className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm ${alertStyles[a.level]}`}>
+              {a.level === "ok" ? (
+                <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+              ) : a.level === "warning" ? (
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              ) : (
+                <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              )}
+              <span>{a.message}</span>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            Estas alertas también quedan guardadas en el historial de auditoría. El aviso por correo se activará automáticamente
+            en cuanto el dominio de remitente esté verificado.
+          </p>
+        </div>
+      )}
+
+
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="glass rounded-2xl p-6 space-y-5">
           <div className="flex items-center gap-2">
