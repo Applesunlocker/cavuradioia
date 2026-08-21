@@ -40,6 +40,12 @@ const statusStyles = {
 const statusLabels = { ok: "Correcto", warning: "Revisar", missing: "Falta" } as const;
 const StatusIcon = { ok: CheckCircle2, warning: AlertTriangle, missing: XCircle };
 
+const ACTION_LABELS: Record<string, string> = {
+  cambio_dominio: "Cambio de dominio",
+  actualizacion_configuracion: "Actualización de configuración",
+  verificacion_dns: "Verificación DNS",
+};
+
 function EmailDomainPanel() {
   const [cfg, setCfg] = useState<EmailDomainConfig>(() => loadEmailDomain());
   const [domain, setDomain] = useState("");
