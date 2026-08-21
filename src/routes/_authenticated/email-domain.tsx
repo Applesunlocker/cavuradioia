@@ -58,8 +58,22 @@ function EmailDomainPanel() {
   const domainError = domain.length > 0 && !isValidDomain(domain) ? "Formato de dominio inválido (ej. notify.midominio.com)" : null;
 
   const check = useServerFn(checkSenderDomain);
+  const audit = useEmailDomainAudit();
+  const logAudit = useLogEmailDomainAudit();
+
   const inspection = useMutation({
     mutationFn: (input: { domain: string; expectedNs: string[] }) => check({ data: input }),
+    onSuccess: (res, vars) => {
+      logAudit.mutate({
+        action: "verificacion_dns",
+        domain: vars.domain,
+        dns_provider: provider,
+        ns_records: vars.expectedNs,
+        score: res.score,
+        statuses: Object.fromEntries(res.checks.map((c) => [c.id, c.status])),
+        notes: `Verificación DNS: ${res.checks.filter((c) => c.status === "ok").length}/${res.checks.length} registros correctos`,
+      });
+    },
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "No se pudo verificar el DNS"),
   });
 
@@ -68,10 +82,21 @@ function EmailDomainPanel() {
       toast.error("Introduce un dominio válido antes de guardar");
       return;
     }
+    const previous = cfg.senderDomain;
     const saved = saveEmailDomain({ senderDomain: normalizeDomain(domain), nsRecords: nsList, dnsProvider: provider });
     setCfg(saved);
     setNsRaw(saved.nsRecords.join("\n"));
     toast.success("Configuración de dominio guardada");
+    logAudit.mutate({
+      action: previous && previous !== saved.senderDomain ? "cambio_dominio" : "actualizacion_configuracion",
+      domain: saved.senderDomain,
+      dns_provider: saved.dnsProvider,
+      ns_records: saved.nsRecords,
+      notes:
+        previous && previous !== saved.senderDomain
+          ? `Dominio cambiado de ${previous} a ${saved.senderDomain}`
+          : `Registros NS/proveedor actualizados (${saved.nsRecords.length} NS)`,
+    });
     inspection.mutate({ domain: saved.senderDomain, expectedNs: saved.nsRecords });
   };
 
