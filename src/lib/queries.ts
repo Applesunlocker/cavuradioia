@@ -189,3 +189,52 @@ export function formatDate(iso: string | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("es", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
+
+// ============ AUDITORÍA DOMINIO DE REMITENTE ============
+export type EmailDomainAudit = Database["public"]["Tables"]["email_domain_audit"]["Row"];
+
+export function useEmailDomainAudit(limit = 25) {
+  return useQuery({
+    queryKey: ["email_domain_audit", limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("email_domain_audit")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useLogEmailDomainAudit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      action: string;
+      domain: string;
+      dns_provider?: string | null;
+      ns_records?: string[];
+      score?: number | null;
+      statuses?: Record<string, string>;
+      notes?: string | null;
+    }) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("No autenticado");
+      const { error } = await supabase.from("email_domain_audit").insert({
+        actor_id: userData.user.id,
+        actor_email: userData.user.email ?? null,
+        action: input.action,
+        domain: input.domain,
+        dns_provider: input.dns_provider ?? null,
+        ns_records: input.ns_records ?? [],
+        score: input.score ?? null,
+        statuses: input.statuses ?? {},
+        notes: input.notes ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["email_domain_audit"] }),
+  });
+}
