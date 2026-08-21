@@ -44,7 +44,15 @@ const ACTION_LABELS: Record<string, string> = {
   cambio_dominio: "Cambio de dominio",
   actualizacion_configuracion: "Actualización de configuración",
   verificacion_dns: "Verificación DNS",
+  alerta_estado: "Alerta: cambio de estado",
+  fallo_verificacion: "Alerta: fallo de verificación",
 };
+
+const alertStyles = {
+  error: "border-destructive/40 bg-destructive/10 text-destructive",
+  warning: "border-primary/40 bg-primary/10 text-primary",
+  ok: "border-neon/40 bg-neon/10 text-neon",
+} as const;
 
 function EmailDomainPanel() {
   const [cfg, setCfg] = useState<EmailDomainConfig>(() => loadEmailDomain());
