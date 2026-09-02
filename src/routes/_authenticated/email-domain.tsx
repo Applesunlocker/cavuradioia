@@ -116,7 +116,9 @@ function EmailDomainPanel() {
       const changes: string[] = [];
       const next: { id: string; level: "error" | "warning" | "ok"; message: string }[] = [];
 
-      for (const c of res.checks) {
+      const watched = res.checks.filter((c) => alertsCfg.enabledEvents.includes(c.id as AlertEventId));
+
+      for (const c of watched) {
         const before = previousStatuses?.[c.id];
         if (before && before !== c.status) {
           const msg = `${c.label}: ${statusLabels[before as keyof typeof statusLabels] ?? before} → ${statusLabels[c.status]}`;
@@ -124,17 +126,23 @@ function EmailDomainPanel() {
           next.push({ id: `chg-${c.id}`, level: c.status === "ok" ? "ok" : c.status === "warning" ? "warning" : "error", message: msg });
         }
       }
-      for (const c of res.checks) {
-        if (c.status === "missing") {
-          next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+      if (alertsCfg.notifyOnFailure) {
+        for (const c of watched) {
+          if (c.status === "missing") {
+            next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+          }
         }
       }
 
-      setAlerts(next);
-      if (next.some((a) => a.level === "error")) {
-        toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
-      } else if (changes.length) {
-        toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+      const allowed = canNotifyNow(alertsCfg, changes.length > 0 || next.some((a) => a.level === "error"));
+      setAlerts(allowed ? next : []);
+      if (allowed && next.length > 0) {
+        if (next.some((a) => a.level === "error")) {
+          toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
+        } else if (changes.length) {
+          toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+        }
+        setAlertsCfg(markAlertsNotified());
       }
 
       logAudit.mutate({
