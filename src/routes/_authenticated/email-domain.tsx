@@ -72,6 +72,7 @@ function EmailDomainPanel() {
   const [domain, setDomain] = useState("");
   const [nsRaw, setNsRaw] = useState("");
   const [provider, setProvider] = useState("");
+  const [alertsCfg, setAlertsCfg] = useState<AlertsConfig>(DEFAULT_ALERTS);
 
   useEffect(() => {
     const c = loadEmailDomain();
@@ -79,7 +80,18 @@ function EmailDomainPanel() {
     setDomain(c.senderDomain);
     setNsRaw(c.nsRecords.join("\n"));
     setProvider(c.dnsProvider);
+    setAlertsCfg(loadAlertsConfig());
+    return onAlertsConfigChange(setAlertsCfg);
   }, []);
+
+  const toggleEvent = (id: AlertEventId) => {
+    const enabled = alertsCfg.enabledEvents.includes(id)
+      ? alertsCfg.enabledEvents.filter((e) => e !== id)
+      : [...alertsCfg.enabledEvents, id];
+    setAlertsCfg(saveAlertsConfig({ enabledEvents: enabled }));
+  };
+
+  const setFrequency = (frequency: AlertFrequency) => setAlertsCfg(saveAlertsConfig({ frequency }));
 
   const nsList = useMemo(() => parseNsList(nsRaw), [nsRaw]);
   const domainError = domain.length > 0 && !isValidDomain(domain) ? "Formato de dominio inválido (ej. notify.midominio.com)" : null;
