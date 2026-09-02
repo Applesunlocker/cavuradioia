@@ -310,6 +310,85 @@ function EmailDomainPanel() {
           )}
         </section>
 
+        <section className="glass rounded-2xl p-6 space-y-5 lg:order-last lg:col-span-3">
+          <div className="flex items-center gap-2">
+            <BellRing className="h-4 w-4 text-neon" />
+            <h2 className="font-semibold">Preferencias de alertas</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Elige qué registros vigilar y con qué frecuencia quieres recibir avisos en la app cuando cambie su estado.
+          </p>
+
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Eventos vigilados</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+              {ALERT_EVENTS.map((ev) => {
+                const on = alertsCfg.enabledEvents.includes(ev.id);
+                return (
+                  <button
+                    key={ev.id}
+                    type="button"
+                    role="switch"
+                    aria-checked={on}
+                    onClick={() => toggleEvent(ev.id)}
+                    className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
+                      on ? "border-neon/40 bg-neon/10 text-neon" : "border-border bg-card/30 text-muted-foreground"
+                    }`}
+                  >
+                    <span>{ev.label}</span>
+                    <span
+                      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${on ? "bg-neon/60" : "bg-muted"}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all ${on ? "left-[1.125rem]" : "left-0.5"}`}
+                      />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Frecuencia de avisos</p>
+            <div className="grid sm:grid-cols-3 gap-2">
+              {FREQUENCY_OPTIONS.map((f) => {
+                const active = alertsCfg.frequency === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFrequency(f.id)}
+                    className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                      active ? "border-primary/50 bg-primary/10" : "border-border bg-card/30 hover:border-primary/30"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold ${active ? "text-primary" : ""}`}>{f.label}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{f.hint}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={alertsCfg.notifyOnFailure}
+              onChange={(e) => setAlertsCfg(saveAlertsConfig({ notifyOnFailure: e.target.checked }))}
+              className="h-4 w-4 accent-primary"
+            />
+            Avisar también cuando un registro vigilado no esté publicado
+          </label>
+
+          {alertsCfg.lastNotifiedAt && (
+            <p className="text-xs text-muted-foreground">
+              Último aviso: {new Date(alertsCfg.lastNotifiedAt).toLocaleString("es-ES")}
+            </p>
+          )}
+        </section>
+
+
         <section className="lg:col-span-2 space-y-6">
           <div className="grid sm:grid-cols-3 gap-4">
             <StatCard label="Salud del dominio" value={result ? `${result.score}%` : "—"} />
