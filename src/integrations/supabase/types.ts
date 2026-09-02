@@ -187,6 +187,33 @@ export type Database = {
         }
         Relationships: []
       }
+      launch_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          plan_interest: string | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          plan_interest?: string | null
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          plan_interest?: string | null
+          source?: string
+        }
+        Relationships: []
+      }
       library_items: {
         Row: {
           broadcast_id: string | null
