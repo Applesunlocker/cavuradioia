@@ -14,7 +14,20 @@ import {
   type EmailDomainConfig,
 } from "@/lib/email-domain-config";
 import { useEmailDomainAudit, useLogEmailDomainAudit } from "@/lib/queries";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History } from "lucide-react";
+import {
+  ALERT_EVENTS,
+  FREQUENCY_OPTIONS,
+  DEFAULT_ALERTS,
+  loadAlertsConfig,
+  saveAlertsConfig,
+  markAlertsNotified,
+  canNotifyNow,
+  onAlertsConfigChange,
+  type AlertsConfig,
+  type AlertEventId,
+  type AlertFrequency,
+} from "@/lib/email-alerts-config";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History, BellRing } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/email-domain")({
