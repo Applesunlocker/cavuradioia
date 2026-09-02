@@ -14,7 +14,20 @@ import {
   type EmailDomainConfig,
 } from "@/lib/email-domain-config";
 import { useEmailDomainAudit, useLogEmailDomainAudit } from "@/lib/queries";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History } from "lucide-react";
+import {
+  ALERT_EVENTS,
+  FREQUENCY_OPTIONS,
+  DEFAULT_ALERTS,
+  loadAlertsConfig,
+  saveAlertsConfig,
+  markAlertsNotified,
+  canNotifyNow,
+  onAlertsConfigChange,
+  type AlertsConfig,
+  type AlertEventId,
+  type AlertFrequency,
+} from "@/lib/email-alerts-config";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Save, Mail, Server, Copy, History, BellRing } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/email-domain")({
@@ -59,6 +72,7 @@ function EmailDomainPanel() {
   const [domain, setDomain] = useState("");
   const [nsRaw, setNsRaw] = useState("");
   const [provider, setProvider] = useState("");
+  const [alertsCfg, setAlertsCfg] = useState<AlertsConfig>(DEFAULT_ALERTS);
 
   useEffect(() => {
     const c = loadEmailDomain();
@@ -66,7 +80,18 @@ function EmailDomainPanel() {
     setDomain(c.senderDomain);
     setNsRaw(c.nsRecords.join("\n"));
     setProvider(c.dnsProvider);
+    setAlertsCfg(loadAlertsConfig());
+    return onAlertsConfigChange(setAlertsCfg);
   }, []);
+
+  const toggleEvent = (id: AlertEventId) => {
+    const enabled = alertsCfg.enabledEvents.includes(id)
+      ? alertsCfg.enabledEvents.filter((e) => e !== id)
+      : [...alertsCfg.enabledEvents, id];
+    setAlertsCfg(saveAlertsConfig({ enabledEvents: enabled }));
+  };
+
+  const setFrequency = (frequency: AlertFrequency) => setAlertsCfg(saveAlertsConfig({ frequency }));
 
   const nsList = useMemo(() => parseNsList(nsRaw), [nsRaw]);
   const domainError = domain.length > 0 && !isValidDomain(domain) ? "Formato de dominio inválido (ej. notify.midominio.com)" : null;
@@ -91,7 +116,9 @@ function EmailDomainPanel() {
       const changes: string[] = [];
       const next: { id: string; level: "error" | "warning" | "ok"; message: string }[] = [];
 
-      for (const c of res.checks) {
+      const watched = res.checks.filter((c) => alertsCfg.enabledEvents.includes(c.id as AlertEventId));
+
+      for (const c of watched) {
         const before = previousStatuses?.[c.id];
         if (before && before !== c.status) {
           const msg = `${c.label}: ${statusLabels[before as keyof typeof statusLabels] ?? before} → ${statusLabels[c.status]}`;
@@ -99,17 +126,23 @@ function EmailDomainPanel() {
           next.push({ id: `chg-${c.id}`, level: c.status === "ok" ? "ok" : c.status === "warning" ? "warning" : "error", message: msg });
         }
       }
-      for (const c of res.checks) {
-        if (c.status === "missing") {
-          next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+      if (alertsCfg.notifyOnFailure) {
+        for (const c of watched) {
+          if (c.status === "missing") {
+            next.push({ id: `fail-${c.id}`, level: "error", message: `${c.label} no está publicado: ${c.detail}` });
+          }
         }
       }
 
-      setAlerts(next);
-      if (next.some((a) => a.level === "error")) {
-        toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
-      } else if (changes.length) {
-        toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+      const allowed = canNotifyNow(alertsCfg, changes.length > 0 || next.some((a) => a.level === "error"));
+      setAlerts(allowed ? next : []);
+      if (allowed && next.length > 0) {
+        if (next.some((a) => a.level === "error")) {
+          toast.error(`Verificación DNS con fallos: ${next.filter((a) => a.level === "error").length} registro(s) requieren atención`);
+        } else if (changes.length) {
+          toast.success(`Estado de autenticación actualizado: ${changes.join(" · ")}`);
+        }
+        setAlertsCfg(markAlertsNotified());
       }
 
       logAudit.mutate({
@@ -276,6 +309,85 @@ function EmailDomainPanel() {
             </p>
           )}
         </section>
+
+        <section className="glass rounded-2xl p-6 space-y-5 lg:order-last lg:col-span-3">
+          <div className="flex items-center gap-2">
+            <BellRing className="h-4 w-4 text-neon" />
+            <h2 className="font-semibold">Preferencias de alertas</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Elige qué registros vigilar y con qué frecuencia quieres recibir avisos en la app cuando cambie su estado.
+          </p>
+
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Eventos vigilados</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+              {ALERT_EVENTS.map((ev) => {
+                const on = alertsCfg.enabledEvents.includes(ev.id);
+                return (
+                  <button
+                    key={ev.id}
+                    type="button"
+                    role="switch"
+                    aria-checked={on}
+                    onClick={() => toggleEvent(ev.id)}
+                    className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
+                      on ? "border-neon/40 bg-neon/10 text-neon" : "border-border bg-card/30 text-muted-foreground"
+                    }`}
+                  >
+                    <span>{ev.label}</span>
+                    <span
+                      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${on ? "bg-neon/60" : "bg-muted"}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all ${on ? "left-[1.125rem]" : "left-0.5"}`}
+                      />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Frecuencia de avisos</p>
+            <div className="grid sm:grid-cols-3 gap-2">
+              {FREQUENCY_OPTIONS.map((f) => {
+                const active = alertsCfg.frequency === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFrequency(f.id)}
+                    className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                      active ? "border-primary/50 bg-primary/10" : "border-border bg-card/30 hover:border-primary/30"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold ${active ? "text-primary" : ""}`}>{f.label}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{f.hint}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={alertsCfg.notifyOnFailure}
+              onChange={(e) => setAlertsCfg(saveAlertsConfig({ notifyOnFailure: e.target.checked }))}
+              className="h-4 w-4 accent-primary"
+            />
+            Avisar también cuando un registro vigilado no esté publicado
+          </label>
+
+          {alertsCfg.lastNotifiedAt && (
+            <p className="text-xs text-muted-foreground">
+              Último aviso: {new Date(alertsCfg.lastNotifiedAt).toLocaleString("es-ES")}
+            </p>
+          )}
+        </section>
+
 
         <section className="lg:col-span-2 space-y-6">
           <div className="grid sm:grid-cols-3 gap-4">
