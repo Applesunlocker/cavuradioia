@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Radio, Zap, Globe2, Bot, Scissors } from "lucide-react";
+import { InstallButton, InstallPrompt } from "@/components/InstallApp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
