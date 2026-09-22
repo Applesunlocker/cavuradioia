@@ -49,7 +49,8 @@ function Landing() {
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground">Funciones</a>
             <a href="#ai" className="hover:text-foreground">IA</a>
-            <a href="#pricing" className="hover:text-foreground">Precios</a>
+            <Link to="/precios" className="hover:text-foreground">Precios</Link>
+            <Link to="/lanzamiento" className="hover:text-foreground">Lanzamiento</Link>
           </div>
           <Link
             to="/dashboard"
