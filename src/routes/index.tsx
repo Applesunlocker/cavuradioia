@@ -52,12 +52,15 @@ function Landing() {
             <Link to="/precios" className="hover:text-foreground">Precios</Link>
             <Link to="/lanzamiento" className="hover:text-foreground">Lanzamiento</Link>
           </div>
-          <Link
-            to="/dashboard"
-            className="rounded-xl gradient-primary-bg px-4 py-2 text-sm font-semibold text-primary-foreground glow"
-          >
-            Abrir Studio
-          </Link>
+          <div className="flex items-center gap-2">
+            <InstallButton className="hidden sm:inline-flex" />
+            <Link
+              to="/dashboard"
+              className="rounded-xl gradient-primary-bg px-4 py-2 text-sm font-semibold text-primary-foreground glow"
+            >
+              Abrir Studio
+            </Link>
+          </div>
         </div>
       </nav>
 
