@@ -35,6 +35,7 @@ const nav: NavItem[] = [
   { to: "/destinations", label: "Destinos", icon: Share2 },
   { to: "/ai-tools", label: "Herramientas IA", icon: Sparkles },
   { to: "/analytics", label: "Analítica", icon: BarChart3 },
+  { to: "/campaign", label: "Campaña", icon: Megaphone },
   { to: "/team", label: "Equipo", icon: Users },
   { to: "/settings", label: "Ajustes", icon: Settings },
 ];
