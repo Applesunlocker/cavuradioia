@@ -21,6 +21,7 @@ import {
   LogOut,
   Shield,
   MailCheck,
+  Megaphone,
 } from "lucide-react";
 import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +36,7 @@ const nav: NavItem[] = [
   { to: "/destinations", label: "Destinos", icon: Share2 },
   { to: "/ai-tools", label: "Herramientas IA", icon: Sparkles },
   { to: "/analytics", label: "Analítica", icon: BarChart3 },
+  { to: "/campaign", label: "Campaña", icon: Megaphone },
   { to: "/team", label: "Equipo", icon: Users },
   { to: "/settings", label: "Ajustes", icon: Settings },
 ];

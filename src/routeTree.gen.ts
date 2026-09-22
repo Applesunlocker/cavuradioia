@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PreciosRouteImport } from './routes/precios'
+import { Route as LanzamientoRouteImport } from './routes/lanzamiento'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,6 +22,7 @@ import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedEmailDomainRouteImport } from './routes/_authenticated/email-domain'
 import { Route as AuthenticatedDestinationsRouteImport } from './routes/_authenticated/destinations'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCampaignRouteImport } from './routes/_authenticated/campaign'
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
@@ -34,6 +36,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const PreciosRoute = PreciosRouteImport.update({
   id: '/precios',
   path: '/precios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LanzamientoRoute = LanzamientoRouteImport.update({
+  id: '/lanzamiento',
+  path: '/lanzamiento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -87,6 +94,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCampaignRoute = AuthenticatedCampaignRouteImport.update({
+  id: '/campaign',
+  path: '/campaign',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBroadcastsRoute = AuthenticatedBroadcastsRouteImport.update({
   id: '/broadcasts',
   path: '/broadcasts',
@@ -111,12 +123,14 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lanzamiento': typeof LanzamientoRoute
   '/precios': typeof PreciosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/campaign': typeof AuthenticatedCampaignRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/destinations': typeof AuthenticatedDestinationsRoute
   '/email-domain': typeof AuthenticatedEmailDomainRoute
@@ -128,12 +142,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lanzamiento': typeof LanzamientoRoute
   '/precios': typeof PreciosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/campaign': typeof AuthenticatedCampaignRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/destinations': typeof AuthenticatedDestinationsRoute
   '/email-domain': typeof AuthenticatedEmailDomainRoute
@@ -147,12 +163,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/lanzamiento': typeof LanzamientoRoute
   '/precios': typeof PreciosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/ai-tools': typeof AuthenticatedAiToolsRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/_authenticated/campaign': typeof AuthenticatedCampaignRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/destinations': typeof AuthenticatedDestinationsRoute
   '/_authenticated/email-domain': typeof AuthenticatedEmailDomainRoute
@@ -166,12 +184,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/lanzamiento'
     | '/precios'
     | '/sitemap.xml'
     | '/admin'
     | '/ai-tools'
     | '/analytics'
     | '/broadcasts'
+    | '/campaign'
     | '/dashboard'
     | '/destinations'
     | '/email-domain'
@@ -183,12 +203,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/lanzamiento'
     | '/precios'
     | '/sitemap.xml'
     | '/admin'
     | '/ai-tools'
     | '/analytics'
     | '/broadcasts'
+    | '/campaign'
     | '/dashboard'
     | '/destinations'
     | '/email-domain'
@@ -201,12 +223,14 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/lanzamiento'
     | '/precios'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/ai-tools'
     | '/_authenticated/analytics'
     | '/_authenticated/broadcasts'
+    | '/_authenticated/campaign'
     | '/_authenticated/dashboard'
     | '/_authenticated/destinations'
     | '/_authenticated/email-domain'
@@ -220,6 +244,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  LanzamientoRoute: typeof LanzamientoRoute
   PreciosRoute: typeof PreciosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -238,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/precios'
       fullPath: '/precios'
       preLoaderRoute: typeof PreciosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lanzamiento': {
+      id: '/lanzamiento'
+      path: '/lanzamiento'
+      fullPath: '/lanzamiento'
+      preLoaderRoute: typeof LanzamientoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -310,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/campaign': {
+      id: '/_authenticated/campaign'
+      path: '/campaign'
+      fullPath: '/campaign'
+      preLoaderRoute: typeof AuthenticatedCampaignRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/broadcasts': {
       id: '/_authenticated/broadcasts'
       path: '/broadcasts'
@@ -346,6 +385,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiToolsRoute: typeof AuthenticatedAiToolsRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRoute
+  AuthenticatedCampaignRoute: typeof AuthenticatedCampaignRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDestinationsRoute: typeof AuthenticatedDestinationsRoute
   AuthenticatedEmailDomainRoute: typeof AuthenticatedEmailDomainRoute
@@ -360,6 +400,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiToolsRoute: AuthenticatedAiToolsRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRoute,
+  AuthenticatedCampaignRoute: AuthenticatedCampaignRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDestinationsRoute: AuthenticatedDestinationsRoute,
   AuthenticatedEmailDomainRoute: AuthenticatedEmailDomainRoute,
@@ -376,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  LanzamientoRoute: LanzamientoRoute,
   PreciosRoute: PreciosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
