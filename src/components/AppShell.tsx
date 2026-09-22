@@ -21,6 +21,7 @@ import {
   LogOut,
   Shield,
   MailCheck,
+  Megaphone,
 } from "lucide-react";
 import { loadContact, onContactChange, buildWhatsAppUrl } from "@/lib/contact-config";
 import { supabase } from "@/integrations/supabase/client";
