@@ -1,4 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { InstallButton, InstallPrompt } from "@/components/InstallApp";
 import { type ReactNode, useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -202,6 +203,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="w-full rounded-xl bg-secondary/60 border border-border pl-9 pr-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
+          <InstallButton />
           <button className="relative rounded-lg p-2 hover:bg-accent transition-colors">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-neon live-dot" />
@@ -233,6 +235,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           © {year === 2026 ? "1997 - 2026" : `1997 - ${year}`} PCVEN, C.A. Todos los derechos reservados. Desarrollado por Ing. Carlos Vásquez
         </footer>
       </div>
+
+      <InstallPrompt />
 
       {/* Floating action buttons */}
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
